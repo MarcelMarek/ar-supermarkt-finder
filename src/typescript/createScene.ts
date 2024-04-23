@@ -20,7 +20,6 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
   // Hit-Test to search for walls
   const featuresManager = xr.baseExperience.featuresManager;
 
-  // featuresManager from the base webxr experience helper
   const xrTest = featuresManager.enableFeature(WebXRHitTest, "latest") as WebXRHitTest;
 
   const marker = MeshBuilder.CreateTorus("marker", { diameter: 0.15, thickness: 0.05 }); // torus to see if horizontal or vertical wall

@@ -1,8 +1,6 @@
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF";
-import { Engine, Scene } from "@babylonjs/core";
-import { createScene } from "./typescript/createScene";
 import { babylonInit } from "./typescript/babylonInit";
 
 class App {
