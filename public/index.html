@@ -6,6 +6,8 @@
     <title>AR Supermarket Finder</title>
     <meta name="description" content="A sample project based on Babylon.js, written in typescript, built with webpack" />
     <meta name="author" content="Marcel Marek" />
+    <script src="https://cdn.babylonjs.com/earcut.min.js"></script>
+
     <style>
       html,
       body {
@@ -21,10 +23,15 @@
         height: 100%;
         touch-action: none;
       }
+
+      #canvasZone {
+        width: 100%;
+        height: 100%;
+      }
     </style>
   </head>
 
   <body>
-    <canvas id="renderCanvas" touch-action="none"></canvas>
+    <div id="canvasZone"><canvas id="renderCanvas" touch-action="none"></canvas></div>
   </body>
 </html>
