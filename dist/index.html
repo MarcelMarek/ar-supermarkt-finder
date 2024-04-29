@@ -1,12 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <title>AR Supermarkt Finder</title>
+    <meta charset="utf-8" />
+
+    <title>AR Supermarket Finder</title>
+    <meta name="description" content="A sample project based on Babylon.js, written in typescript, built with webpack" />
+    <meta name="author" content="Marcel Marek" />
+    <style>
+      html,
+      body {
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      #renderCanvas {
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+    </style>
   <script defer src="js/bundleName.js"></script></head>
+
   <body>
-    <div id="canvasZone">
-      <canvas id="renderCanvas"></canvas>
-    </div>
+    <canvas id="renderCanvas" touch-action="none"></canvas>
   </body>
 </html>
