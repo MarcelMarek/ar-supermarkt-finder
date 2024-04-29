@@ -23,9 +23,14 @@ An AR App to assist your search for products in a supermarket.
 - Problem: Zu kleine Raumgröße der Qest 3. Nach 10 x 10 Meter ist Scannen der Umgebung möglich. Allerdings können keine Möbelstücke, außerhalb des 10x10 Bereiches, hinzugefügt werden.
 - Lösung: Mehrere aneinander gereihte Räume können als ein großer Raum agieren. Über "Punktwolke mit Meta teilen" können diese Räume für Andere zur Verfügung gestellt werden.
 
-- Kapitel Erfahrungen (sehr gerne was schwierigkeiten waren)
-- wie groß darf die szene sein
-- Dienstag mal Brillen größe test
 - Bachelorarbeit BabylonJS (AR)
 
 Szene kann über "Punktwolke mit Meta teilen" geteilt werden
+
+### Laden der Rauminformationen in babylonjs
+
+- Problem: Das Interface IWebXRPlane besitzt nicht ein Mesh Objekt namens mesh (BabylonJS-Beispiel besitzt jedoch eines: https://playground.babylonjs.com/#98TM63)
+- Lösung: IWebXRPlane modifizieren und mesh hinzufügen
+
+- Problem: Keine Anzeige der Rauminformationen. Fehlermeldung "earcut is missing"
+- Lösung: Skript hinzugefügt (<script src="https://cdn.babylonjs.com/earcut.min.js"></script>)
