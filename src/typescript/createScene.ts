@@ -1,5 +1,22 @@
-import { Scene, Vector3, HemisphericLight, MeshBuilder, FreeCamera, WebXRHitTest, Quaternion, Engine, WebXRPlaneDetector, Mesh } from "@babylonjs/core";
+import {
+  Scene,
+  Vector3,
+  MeshBuilder,
+  FreeCamera,
+  WebXRHitTest,
+  Quaternion,
+  Engine,
+  WebXRPlaneDetector,
+  Mesh,
+  WebXRAnchorSystem,
+  DirectionalLight,
+  ShadowGenerator,
+  WebXRState,
+} from "@babylonjs/core";
 import { addPolygonForPlaneDetection, removePolygonForPlaneDetection, updatePolygonForPlaneDetection } from "./planeDetector";
+
+import { addMeshForAnchorAddedObservable, removeMeshForAnchorRemovedObservable } from "./anchorSystem";
+import { createShadowGenerator } from "./shadowGenerator";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
   var scene = new Scene(engine);
@@ -8,8 +25,8 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
   camera.setTarget(Vector3.Zero()); // targets the camera to scene origin
   camera.attachControl(canvas, true); // attaches the camera to the canvas
 
-  var light = new HemisphericLight("light1", new Vector3(0, 1, 0), scene); // light, aiming 0,1,0 to the sky (non-mesh)
-  light.intensity = 0.7; // Default intensity is 1. So dimmed little bit
+  var dirLight = new DirectionalLight("light", new Vector3(0, -1, -0.5), scene);
+  dirLight.position = new Vector3(0, 5, -5);
 
   var xr = await scene.createDefaultXRExperienceAsync({
     uiOptions: {
@@ -20,6 +37,10 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
     optionalFeatures: true,
   });
 
+  const shadowGenerator = createShadowGenerator(scene);
+  shadowGenerator.useBlurExponentialShadowMap = true;
+  shadowGenerator.blurKernel = 32;
+
   // Hit-Test to search for walls
   const featuresManager = xr.baseExperience.featuresManager;
 
@@ -29,33 +50,32 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
   marker.isVisible = false;
   marker.rotationQuaternion = new Quaternion(); // for smooth and stable rotation calculations
 
+  let hitTest;
+
   xrTest.onHitTestResultObservable.add((results) => {
     if (results.length) {
       marker.isVisible = true;
-      const hitTest = results[0];
+      hitTest = results[0];
       hitTest.transformationMatrix.decompose(marker.scaling, marker.rotationQuaternion, marker.position);
     } else {
       marker.isVisible = false;
     }
   });
 
-  // Plane Detection for shelves
+  // Plane Detection
   const xrPlanes = featuresManager.enableFeature(WebXRPlaneDetector.Name, "latest") as WebXRPlaneDetector;
 
   const planes: Mesh[] = [];
 
   xrPlanes.onPlaneAddedObservable.add((plane) => {
-    // ... do what you want with the plane after it was added
     addPolygonForPlaneDetection(scene, planes, plane);
   });
 
   xrPlanes.onPlaneUpdatedObservable.add((plane) => {
-    // ... do what you want with the plane after it was updated
     updatePolygonForPlaneDetection(scene, planes, plane);
   });
 
   xrPlanes.onPlaneRemovedObservable.add((plane) => {
-    // ... do what you want with the plane after it was removed
     removePolygonForPlaneDetection(planes, plane);
   });
 
@@ -63,6 +83,27 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
     planes.forEach((plane) => plane.dispose());
     while (planes.pop()) {}
   });
+
+  // Anchors
+
+  const anchors = featuresManager.enableFeature(WebXRAnchorSystem.Name, "latest") as WebXRAnchorSystem;
+
+  if (anchors) {
+    console.log("anchors attached");
+    anchors.onAnchorAddedObservable.add((anchor) => {
+      addMeshForAnchorAddedObservable(scene, anchor, shadowGenerator);
+    });
+
+    anchors.onAnchorRemovedObservable.add((anchor) => {
+      removeMeshForAnchorRemovedObservable(anchor);
+    });
+  }
+
+  scene.onPointerDown = (evt, pickInfo) => {
+    if (hitTest && anchors && xr.baseExperience.state === WebXRState.IN_XR) {
+      anchors.addAnchorPointUsingHitTestResultAsync(hitTest);
+    }
+  };
 
   return scene;
 };

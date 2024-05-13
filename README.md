@@ -34,3 +34,8 @@ Szene kann über "Punktwolke mit Meta teilen" geteilt werden
 
 - Problem: Keine Anzeige der Rauminformationen. Fehlermeldung "earcut is missing"
 - Lösung: Skript hinzugefügt (<script src="https://cdn.babylonjs.com/earcut.min.js"></script>)
+
+Anchors
+20 min Präsentation
+Video der Präsentation, statt langem Text
+(Scrcpy außen und innen aufnehmen zum)
