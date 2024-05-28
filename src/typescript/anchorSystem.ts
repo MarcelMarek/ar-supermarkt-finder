@@ -1,13 +1,11 @@
-import { AbstractMesh, IWebXRAnchor, MeshBuilder, Scene, ShadowGenerator } from "@babylonjs/core";
+import { AbstractMesh, IWebXRAnchor, Scene } from "@babylonjs/core";
+import { getExampleRandomMesh } from "./products";
 
-export function addMeshForAnchorAddedObservable(scene: Scene, anchor: IWebXRAnchor, shadowGenerator: ShadowGenerator) {
+export function addMeshForAnchorAddedObservable(scene: Scene, anchor: IWebXRAnchor) {
   console.log("attaching", anchor);
-  const cube = MeshBuilder.CreateBox("cube", {}, scene);
+  const cube = getExampleRandomMesh(scene);
   cube.isVisible = true;
-  anchor.attachedNode = cube.clone("cubeClone") as AbstractMesh;
-  if (anchor.attachedNode) {
-    shadowGenerator.addShadowCaster(anchor.attachedNode as AbstractMesh, true);
-  }
+  anchor.attachedNode = cube.clone("cubeClone", cube) as AbstractMesh;
   cube.isVisible = false;
 }
 
