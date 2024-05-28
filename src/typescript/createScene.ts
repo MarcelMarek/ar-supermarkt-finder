@@ -10,13 +10,11 @@ import {
   Mesh,
   WebXRAnchorSystem,
   DirectionalLight,
-  ShadowGenerator,
   WebXRState,
 } from "@babylonjs/core";
 import { addPolygonForPlaneDetection, removePolygonForPlaneDetection, updatePolygonForPlaneDetection } from "./planeDetector";
 
 import { addMeshForAnchorAddedObservable, removeMeshForAnchorRemovedObservable } from "./anchorSystem";
-import { createShadowGenerator } from "./shadowGenerator";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
   var scene = new Scene(engine);
@@ -36,10 +34,6 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
     },
     optionalFeatures: true,
   });
-
-  const shadowGenerator = createShadowGenerator(scene);
-  shadowGenerator.useBlurExponentialShadowMap = true;
-  shadowGenerator.blurKernel = 32;
 
   // Hit-Test to search for walls
   const featuresManager = xr.baseExperience.featuresManager;
@@ -91,7 +85,7 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
   if (anchors) {
     console.log("anchors attached");
     anchors.onAnchorAddedObservable.add((anchor) => {
-      addMeshForAnchorAddedObservable(scene, anchor, shadowGenerator);
+      addMeshForAnchorAddedObservable(scene, anchor);
     });
 
     anchors.onAnchorRemovedObservable.add((anchor) => {
