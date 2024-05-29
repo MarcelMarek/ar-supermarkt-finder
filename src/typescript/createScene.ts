@@ -15,6 +15,7 @@ import {
 import { addPolygonForPlaneDetection, removePolygonForPlaneDetection, updatePolygonForPlaneDetection } from "./planeDetector";
 
 import { addMeshForAnchorAddedObservable, removeMeshForAnchorRemovedObservable } from "./anchorSystem";
+import { addDirectionalLight, addHemisphericLight } from "./light";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
   var scene = new Scene(engine);
@@ -23,8 +24,8 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
   camera.setTarget(Vector3.Zero()); // targets the camera to scene origin
   camera.attachControl(canvas, true); // attaches the camera to the canvas
 
-  var dirLight = new DirectionalLight("light", new Vector3(0, -1, -0.5), scene);
-  dirLight.position = new Vector3(0, 5, -5);
+  addDirectionalLight(scene);
+  addHemisphericLight(scene);
 
   var xr = await scene.createDefaultXRExperienceAsync({
     uiOptions: {
