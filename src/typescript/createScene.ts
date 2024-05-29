@@ -81,7 +81,9 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
 
   // Anchors
 
-  const anchors = featuresManager.enableFeature(WebXRAnchorSystem.Name, "latest") as WebXRAnchorSystem;
+  const anchors = featuresManager.enableFeature(WebXRAnchorSystem.Name, "latest", {
+    doNotRemoveAnchorsOnSessionEnded: true,
+  }) as WebXRAnchorSystem;
 
   if (anchors) {
     console.log("anchors attached");
