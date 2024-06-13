@@ -33,7 +33,7 @@ export function updatePolygonForPlaneDetection(scene: Scene, planes: Mesh[], pla
   }
   plane.polygonDefinition.push(plane.polygonDefinition[0]);
   var polygon_triangulation = new PolygonMeshBuilder(
-    "name",
+    "plane",
     plane.polygonDefinition.map((p) => new Vector2(p.x, p.z)),
     scene
   );

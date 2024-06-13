@@ -8,9 +8,9 @@ function createMaterial(name: string, scene: Scene) {
 }
 
 function createMesh(name: string, scene: Scene) {
-  const height = 1;
-  const width = 0.75;
-  const depth = 0.25;
+  const height = 0.1;
+  const width = 0.075;
+  const depth = 0.025;
 
   const columns = 6;
   const rows = 1;
@@ -24,9 +24,9 @@ function createMesh(name: string, scene: Scene) {
   const exampleRandomOptions = {
     faceUV: faceUV,
     wrap: true,
-    // height: height,
-    // width: width,
-    // depth: depth,
+    height: height,
+    width: width,
+    depth: depth,
   };
 
   const mesh = MeshBuilder.CreateBox(name, exampleRandomOptions, scene);

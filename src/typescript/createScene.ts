@@ -3,19 +3,24 @@ import {
   Vector3,
   MeshBuilder,
   FreeCamera,
-  WebXRHitTest,
   Quaternion,
   Engine,
   WebXRPlaneDetector,
   Mesh,
   WebXRAnchorSystem,
-  DirectionalLight,
   WebXRState,
+  WebXRControllerPointerSelection,
+  Ray,
+  StandardMaterial,
+  Color3,
+  WebXRInputSource,
 } from "@babylonjs/core";
 import { addPolygonForPlaneDetection, removePolygonForPlaneDetection, updatePolygonForPlaneDetection } from "./planeDetector";
 
 import { addMeshForAnchorAddedObservable, removeMeshForAnchorRemovedObservable } from "./anchorSystem";
 import { addDirectionalLight, addHemisphericLight } from "./light";
+import { getExampleRandomMesh } from "./products";
+import { createRayFromController } from "./controller";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
   var scene = new Scene(engine);
@@ -39,22 +44,33 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
   // Hit-Test to search for walls
   const featuresManager = xr.baseExperience.featuresManager;
 
-  const xrTest = featuresManager.enableFeature(WebXRHitTest, "latest") as WebXRHitTest;
+  xr.input.onControllerAddedObservable.add((controller) => {
+    controller.onMotionControllerInitObservable.add((motionController) => {
+      if (motionController.handness === "right") {
+        const xr_ids = motionController.getComponentIds();
+        let triggerComponent = motionController.getComponent(xr_ids[0]);
+        triggerComponent.onButtonStateChangedObservable.add(() => {
+          if (triggerComponent.pressed) {
+            const resultRay = createRayFromController(controller);
+            const raycastHit = scene.pickWithRay(resultRay);
 
-  const marker = MeshBuilder.CreateTorus("marker", { diameter: 0.15, thickness: 0.05 }); // torus to see if horizontal or vertical wall
-  marker.isVisible = false;
-  marker.rotationQuaternion = new Quaternion(); // for smooth and stable rotation calculations
-
-  let hitTest;
-
-  xrTest.onHitTestResultObservable.add((results) => {
-    if (results.length) {
-      marker.isVisible = true;
-      hitTest = results[0];
-      hitTest.transformationMatrix.decompose(marker.scaling, marker.rotationQuaternion, marker.position);
-    } else {
-      marker.isVisible = false;
-    }
+            if (raycastHit && raycastHit.hit && raycastHit.pickedMesh) {
+              const mesh = getExampleRandomMesh(scene);
+              mesh.position = raycastHit.pickedPoint;
+              mesh.position.y += 0.05;
+            }
+          } else {
+            console.log("Button not pressed");
+          }
+        });
+      }
+      if (motionController.handness === "left") {
+        // Add a plane to the left controller
+        const plane = MeshBuilder.CreatePlane("uiPlane", { size: 0.35 }, scene);
+        plane.parent = controller.pointer;
+        plane.position.z += 0.2;
+      }
+    });
   });
 
   // Plane Detection
@@ -86,7 +102,6 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
   }) as WebXRAnchorSystem;
 
   if (anchors) {
-    console.log("anchors attached");
     anchors.onAnchorAddedObservable.add((anchor) => {
       addMeshForAnchorAddedObservable(scene, anchor);
     });
@@ -95,12 +110,6 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
       removeMeshForAnchorRemovedObservable(anchor);
     });
   }
-
-  scene.onPointerDown = (evt, pickInfo) => {
-    if (hitTest && anchors && xr.baseExperience.state === WebXRState.IN_XR) {
-      anchors.addAnchorPointUsingHitTestResultAsync(hitTest);
-    }
-  };
 
   return scene;
 };
