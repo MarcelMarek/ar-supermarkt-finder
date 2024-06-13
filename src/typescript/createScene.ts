@@ -1,25 +1,9 @@
-import {
-  Scene,
-  Vector3,
-  MeshBuilder,
-  FreeCamera,
-  Quaternion,
-  Engine,
-  WebXRPlaneDetector,
-  Mesh,
-  WebXRAnchorSystem,
-  WebXRState,
-  WebXRControllerPointerSelection,
-  Ray,
-  StandardMaterial,
-  Color3,
-  WebXRInputSource,
-} from "@babylonjs/core";
+import { Scene, Vector3, MeshBuilder, FreeCamera, Engine, WebXRPlaneDetector, Mesh, WebXRAnchorSystem, CreateCylinder } from "@babylonjs/core";
 import { addPolygonForPlaneDetection, removePolygonForPlaneDetection, updatePolygonForPlaneDetection } from "./planeDetector";
 
 import { addMeshForAnchorAddedObservable, removeMeshForAnchorRemovedObservable } from "./anchorSystem";
 import { addDirectionalLight, addHemisphericLight } from "./light";
-import { getExampleRandomMesh } from "./products";
+import { getExampleRandomMesh, getJigsawArray } from "./products";
 import { createRayFromController } from "./controller";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
@@ -66,9 +50,24 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
       }
       if (motionController.handness === "left") {
         // Add a plane to the left controller
-        const plane = MeshBuilder.CreatePlane("uiPlane", { size: 0.35 }, scene);
+        const plane = MeshBuilder.CreatePlane("uiPlane", { height: 0.7, width: 1.4 }, scene);
         plane.parent = controller.pointer;
         plane.position.z += 0.2;
+
+        const jigsawPuzzleParts = getJigsawArray();
+        jigsawPuzzleParts.forEach((part, index) => {
+          part.parent = plane;
+          part.position.x = -1;
+          part.position.x = index * 0.3 - 0.5; // Replace partHeight with the height of a part
+          if (index > 2) part.isVisible = false;
+        });
+
+        const arrowUp = CreateCylinder("arrowUp", { height: 0.1, diameterTop: 0.1, diameterBottom: 0, tessellation: 4 }, scene);
+        const arrowDown = CreateCylinder("arrowDown", { height: 0.1, diameterTop: 0, diameterBottom: 0.1, tessellation: 4 }, scene);
+        arrowUp.parent = plane;
+        arrowDown.parent = plane;
+        arrowUp.position.x = 0.75; // Position the arrow above the plane
+        arrowDown.position.x = -0.75; // Position the arrow below the plane
       }
     });
   });
