@@ -1,21 +1,9 @@
-import {
-  Scene,
-  Vector3,
-  MeshBuilder,
-  FreeCamera,
-  WebXRHitTest,
-  Quaternion,
-  Engine,
-  WebXRPlaneDetector,
-  Mesh,
-  WebXRAnchorSystem,
-  DirectionalLight,
-  WebXRState,
-} from "@babylonjs/core";
+import { Scene, Vector3, MeshBuilder, FreeCamera, Engine, WebXRPlaneDetector, Mesh, WebXRAnchorSystem } from "@babylonjs/core";
 import { addPolygonForPlaneDetection, removePolygonForPlaneDetection, updatePolygonForPlaneDetection } from "./planeDetector";
-
 import { addMeshForAnchorAddedObservable, removeMeshForAnchorRemovedObservable } from "./anchorSystem";
 import { addDirectionalLight, addHemisphericLight } from "./light";
+import { configHeader, configStartButton } from "./gui";
+import { AdvancedDynamicTexture, Button, StackPanel, TextBlock } from "babylonjs-gui";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
   var scene = new Scene(engine);
@@ -38,24 +26,6 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
 
   // Hit-Test to search for walls
   const featuresManager = xr.baseExperience.featuresManager;
-
-  const xrTest = featuresManager.enableFeature(WebXRHitTest, "latest") as WebXRHitTest;
-
-  const marker = MeshBuilder.CreateTorus("marker", { diameter: 0.15, thickness: 0.05 }); // torus to see if horizontal or vertical wall
-  marker.isVisible = false;
-  marker.rotationQuaternion = new Quaternion(); // for smooth and stable rotation calculations
-
-  let hitTest;
-
-  xrTest.onHitTestResultObservable.add((results) => {
-    if (results.length) {
-      marker.isVisible = true;
-      hitTest = results[0];
-      hitTest.transformationMatrix.decompose(marker.scaling, marker.rotationQuaternion, marker.position);
-    } else {
-      marker.isVisible = false;
-    }
-  });
 
   // Plane Detection
   const xrPlanes = featuresManager.enableFeature(WebXRPlaneDetector.Name, "latest") as WebXRPlaneDetector;
@@ -96,11 +66,20 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
     });
   }
 
-  scene.onPointerDown = (evt, pickInfo) => {
-    if (hitTest && anchors && xr.baseExperience.state === WebXRState.IN_XR) {
-      anchors.addAnchorPointUsingHitTestResultAsync(hitTest);
-    }
-  };
+  // GUI
+  var plane = MeshBuilder.CreatePlane("plane", {}) as Mesh;
+  plane.position = new Vector3(0.4, 1.4, 0.4);
+  var advancedTexture = AdvancedDynamicTexture.CreateForMesh(plane) as AdvancedDynamicTexture;
+  const panel = new StackPanel();
+  advancedTexture.addControl(panel);
+  const header = new TextBlock();
+  const deskButton = Button.CreateSimpleButton("onoff", "Wählen sie einen Tisch");
+
+  configHeader(header);
+  configStartButton(deskButton);
+
+  panel.addControl(header);
+  panel.addControl(deskButton);
 
   return scene;
 };
