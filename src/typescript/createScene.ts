@@ -3,7 +3,7 @@ import { addPolygonForPlaneDetection, removePolygonForPlaneDetection, updatePoly
 
 import { addMeshForAnchorAddedObservable, removeMeshForAnchorRemovedObservable } from "./anchorSystem";
 import { addDirectionalLight, addHemisphericLight } from "./light";
-import { getExampleRandomMesh, getJigsawArray } from "./products";
+import { getJigsawArray } from "./products";
 import { createRayFromController } from "./controller";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
@@ -27,24 +27,30 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
 
   // Hit-Test to search for walls
   const featuresManager = xr.baseExperience.featuresManager;
-
   xr.input.onControllerAddedObservable.add((controller) => {
+    let draggedPart = null;
+    const jigsawPuzzleParts = getJigsawArray();
+
     controller.onMotionControllerInitObservable.add((motionController) => {
       if (motionController.handness === "right") {
         const xr_ids = motionController.getComponentIds();
         let triggerComponent = motionController.getComponent(xr_ids[0]);
         triggerComponent.onButtonStateChangedObservable.add(() => {
-          if (triggerComponent.pressed) {
-            const resultRay = createRayFromController(controller);
-            const raycastHit = scene.pickWithRay(resultRay);
+          const resultRay = createRayFromController(controller);
+          const raycastHit = scene.pickWithRay(resultRay);
 
-            if (raycastHit && raycastHit.hit && raycastHit.pickedMesh) {
-              const mesh = getExampleRandomMesh(scene);
-              mesh.position = raycastHit.pickedPoint;
-              mesh.position.y += 0.05;
+          if (triggerComponent.pressed) {
+            // Start dragging a jigsaw puzzle part
+            if (raycastHit && raycastHit.hit && raycastHit.pickedMesh && jigsawPuzzleParts.includes(raycastHit.pickedMesh)) {
+              draggedPart = raycastHit.pickedMesh;
             }
           } else {
-            console.log("Button not pressed");
+            // Place the dragged jigsaw puzzle part on a plane
+            if (draggedPart && raycastHit && raycastHit.hit && raycastHit.pickedMesh && raycastHit.pickedMesh.name === "plane") {
+              draggedPart.position = raycastHit.pickedPoint;
+              draggedPart.position.y += 0.05;
+              draggedPart = null;
+            }
           }
         });
       }
@@ -54,7 +60,6 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
         plane.parent = controller.pointer;
         plane.position.z += 0.2;
 
-        const jigsawPuzzleParts = getJigsawArray();
         jigsawPuzzleParts.forEach((part, index) => {
           part.parent = plane;
           part.position.x = -1;

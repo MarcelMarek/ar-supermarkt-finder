@@ -1,4 +1,4 @@
-import { Color3, Mesh, MeshBuilder, Scene, StandardMaterial, Texture, Vector4 } from "@babylonjs/core";
+import { AbstractMesh, Color3, Mesh, MeshBuilder, Scene, StandardMaterial, Texture, Vector4, WebXRHitTest } from "@babylonjs/core";
 
 function createMaterial(name: string, scene: Scene): StandardMaterial {
   const mat = new StandardMaterial(name, scene);
@@ -34,20 +34,20 @@ function createMesh(name: string, scene: Scene): Mesh {
   return mesh;
 }
 
-export function getExampleRandomMesh(scene: Scene): Mesh {
+export function getExampleRandomMesh(scene: Scene): AbstractMesh {
   const exampleRandomMesh = createMesh("ExampleMesh", scene);
   return exampleRandomMesh;
 }
 
-function createJigsawMesh(): Mesh {
-  const jigsawMesh = MeshBuilder.CreateBox("puzzlePart", { height: 0.15, width: 0.25, depth: 0.1 });
+function createJigsawMesh(): AbstractMesh {
+  const jigsawMesh = MeshBuilder.CreateBox("puzzlePart", { height: 0.15, width: 0.25, depth: 0.1 }) as AbstractMesh;
   var materialBox = new StandardMaterial("texture1");
   materialBox.diffuseColor = new Color3(0, 1, 0); //Green
   jigsawMesh.material = materialBox;
   return jigsawMesh;
 }
 
-export function getJigsawArray(): Array<Mesh> {
+export function getJigsawArray(): Array<AbstractMesh> {
   const jigsawArray = [];
   for (let i = 0; i < 10; i++) {
     jigsawArray.push(createJigsawMesh());
