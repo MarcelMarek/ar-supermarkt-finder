@@ -21,6 +21,8 @@
     "webpack-dev-server": "^5.0.4"
   },
   "dependencies": {
+    "babylonjs": "^7.12.0",
+    "babylonjs-gui": "^7.12.0",
     "http-proxy-middleware": "^3.0.0"
   },
   "options": {

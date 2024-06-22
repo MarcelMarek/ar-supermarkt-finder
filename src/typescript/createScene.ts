@@ -1,10 +1,11 @@
 import { Scene, Vector3, MeshBuilder, FreeCamera, Engine, WebXRPlaneDetector, Mesh, WebXRAnchorSystem, CreateCylinder } from "@babylonjs/core";
 import { addPolygonForPlaneDetection, removePolygonForPlaneDetection, updatePolygonForPlaneDetection } from "./planeDetector";
-
 import { addMeshForAnchorAddedObservable, removeMeshForAnchorRemovedObservable } from "./anchorSystem";
 import { addDirectionalLight, addHemisphericLight } from "./light";
 import { getJigsawArray } from "./products";
 import { createRayFromController } from "./controller";
+import { configHeader, configStartButton } from "./gui";
+import { AdvancedDynamicTexture, Button, StackPanel, TextBlock } from "babylonjs-gui";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
   var scene = new Scene(engine);
@@ -114,6 +115,21 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
       removeMeshForAnchorRemovedObservable(anchor);
     });
   }
+
+  // GUI
+  var plane = MeshBuilder.CreatePlane("plane", {}) as Mesh;
+  plane.position = new Vector3(0.4, 1.4, 0.4);
+  var advancedTexture = AdvancedDynamicTexture.CreateForMesh(plane) as AdvancedDynamicTexture;
+  const panel = new StackPanel();
+  advancedTexture.addControl(panel);
+  const header = new TextBlock();
+  const deskButton = Button.CreateSimpleButton("onoff", "Wählen sie einen Tisch");
+
+  configHeader(header);
+  configStartButton(deskButton);
+
+  panel.addControl(header);
+  panel.addControl(deskButton);
 
   return scene;
 };
