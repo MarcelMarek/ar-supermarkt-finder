@@ -1,6 +1,6 @@
 import { Button, Control, TextBlock } from "babylonjs-gui";
 
-export function configHeader(header: TextBlock) {
+export function configGUIHeader(header: TextBlock) {
   header.text = "Puzzle Game";
   header.height = "100px";
   header.color = "white";
@@ -8,12 +8,12 @@ export function configHeader(header: TextBlock) {
   header.fontSize = "120";
 }
 
-export function configStartButton(startButton: Button) {
-  startButton.background = "green";
-  startButton.textBlock.text = "Wählen sie einen Tisch";
-  startButton.width = 0.5;
-  startButton.height = "80px";
-  startButton.color = "white";
-  startButton.background = "green";
-  startButton.fontSize = 60;
+export function configGUIButton(button: Button, buttonText: string) {
+  button.background = "green";
+  button.textBlock.text = buttonText;
+  button.width = 0.5;
+  button.height = "150px";
+  button.color = "white";
+  button.background = "green";
+  button.fontSize = 60;
 }

@@ -51,3 +51,12 @@ export function removePolygonForPlaneDetection(planes: Mesh[], plane: IWebXRPlan
     planes[plane.id].dispose();
   }
 }
+
+export function removePolygonForPlaneDetectionExceptOne(planes: Mesh[], plane: IWebXRPlane, selectedPlane: Mesh) {
+  if (selectedPlane == planes[plane.id]) {
+    return;
+  }
+  if (plane && planes[plane.id]) {
+    planes[plane.id].dispose();
+  }
+}
