@@ -6,9 +6,8 @@ import {
   CreateCylinder,
   MeshBuilder,
   AbstractMesh,
-  StandardMaterial,
+  WebXRDefaultExperience,
   Color3,
-  WebXRPlaneDetector,
 } from "@babylonjs/core";
 import { getJigsawArray } from "./products";
 
@@ -18,12 +17,8 @@ function createRayFromController(controller: WebXRInputSource): Ray {
   return new Ray(origin, direction, (length = 100));
 }
 
-export function onMotionControllerPlacePuzzleInitObservable(
-  scene: Scene,
-  controller: WebXRInputSource,
-  motionController: WebXRAbstractMotionController,
-  draggedPart: any
-) {
+export function onMotionControllerPlacePuzzleInitObservable(scene: Scene, controller: WebXRInputSource, motionController: WebXRAbstractMotionController) {
+  let draggedPart;
   const jigsawPuzzleParts = getJigsawArray();
 
   if (motionController.handness === "right") {
@@ -69,6 +64,22 @@ export function onMotionControllerPlacePuzzleInitObservable(
   }
 }
 
+export function onMotionControllerInitObservable(
+  scene: Scene,
+  xrHelper: WebXRDefaultExperience,
+  controller: WebXRInputSource,
+  motionController: WebXRAbstractMotionController
+) {
+  const xr_ids = motionController.getComponentIds();
+  let triggerComponent = motionController.getComponent(xr_ids[0]); // xr-standard-trigger
+
+  triggerComponent.onButtonStateChangedObservable.add(() => {
+    if (triggerComponent.changes.pressed) {
+      handleMeshHighlighting(triggerComponent, scene, xrHelper, controller);
+    }
+  });
+}
+
 export function onMotionControllerSelectDeskInitObservable(
   scene: Scene,
   controller: WebXRInputSource,
@@ -92,5 +103,35 @@ export function onMotionControllerSelectDeskInitObservable(
         }
       }
     });
+  }
+}
+
+function handleMeshHighlighting(triggerComponent, scene, xrHelper, controller) {
+  let mesh = scene.meshUnderPointer;
+  console.log(mesh && mesh.name);
+
+  if (xrHelper.pointerSelection.getMeshUnderPointer) {
+    mesh = xrHelper.pointerSelection.getMeshUnderPointer(controller.uniqueId);
+  }
+  console.log(mesh && mesh.name);
+
+  if (triggerComponent.pressed) {
+    highlightMesh(mesh);
+  } else {
+    removeMeshHighlight(mesh);
+  }
+}
+
+function highlightMesh(mesh) {
+  if (mesh) {
+    mesh.renderOutline = true;
+    mesh.outlineColor = Color3.Red(); // Set the outline color to red
+    mesh.outlineWidth = 0.05; // Set the outline width
+  }
+}
+
+function removeMeshHighlight(mesh) {
+  if (mesh) {
+    mesh.renderOutline = false;
   }
 }

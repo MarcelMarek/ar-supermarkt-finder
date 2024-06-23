@@ -1,10 +1,21 @@
-import { Scene, Vector3, MeshBuilder, FreeCamera, Engine, WebXRPlaneDetector, Mesh, WebXRAnchorSystem, AbstractMesh } from "@babylonjs/core";
+import {
+  Scene,
+  Vector3,
+  MeshBuilder,
+  FreeCamera,
+  Engine,
+  WebXRPlaneDetector,
+  Mesh,
+  WebXRAnchorSystem,
+  AbstractMesh,
+  WebXRExperienceHelper,
+} from "@babylonjs/core";
 import { addPolygonForPlaneDetection, removePolygonForPlaneDetection, updatePolygonForPlaneDetection } from "./planeDetector";
 import { addMeshForAnchorAddedObservable, removeMeshForAnchorRemovedObservable } from "./anchorSystem";
 import { addDirectionalLight, addHemisphericLight } from "./light";
 import { configGUIButton, configGUIHeader } from "./gui";
 import { AdvancedDynamicTexture, Button, StackPanel, TextBlock } from "babylonjs-gui";
-import { onMotionControllerPlacePuzzleInitObservable, onMotionControllerSelectDeskInitObservable } from "./controller";
+import { onMotionControllerInitObservable, onMotionControllerPlacePuzzleInitObservable, onMotionControllerSelectDeskInitObservable } from "./controller";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
   let isSelectingDesk = false;
@@ -66,16 +77,28 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
   }
 
   // Controller
-  xr.input.onControllerAddedObservable.add((controller) => {
-    let draggedPart = null;
 
+  xr.input.onControllerAddedObservable.add((controller) => {
     controller.onMotionControllerInitObservable.add((motionController) => {
-      if (isStartingGame) {
-        onMotionControllerPlacePuzzleInitObservable(scene, controller, motionController, draggedPart);
-      }
-      onMotionControllerSelectDeskInitObservable(scene, controller, motionController, planes);
+      onMotionControllerInitObservable(scene, xr, controller, motionController);
     });
   });
+
+  if (isSelectingDesk) {
+    xr.input.onControllerAddedObservable.add((controller) => {
+      controller.onMotionControllerInitObservable.add((motionController) => {
+        onMotionControllerSelectDeskInitObservable(scene, controller, motionController, planes);
+      });
+    });
+  }
+
+  if (isStartingGame) {
+    xr.input.onControllerAddedObservable.add((controller) => {
+      controller.onMotionControllerInitObservable.add((motionController) => {
+        onMotionControllerPlacePuzzleInitObservable(scene, controller, motionController);
+      });
+    });
+  }
 
   // GUI
   var guiPlane = MeshBuilder.CreatePlane("plane", {}) as AbstractMesh;
