@@ -4,8 +4,9 @@ import { addMeshForAnchorAddedObservable, removeMeshForAnchorRemovedObservable }
 import { addDirectionalLight, addHemisphericLight } from "./light";
 import { configGUIButton, configGUIHeader } from "./gui";
 import { AdvancedDynamicTexture, Button, StackPanel, TextBlock } from "babylonjs-gui";
-import { onMotionControllerInitObservable, changeMotionControllerStartGame, changeMotionControllerSelectDesk } from "./controller";
+import { onMotionControllerInitObservable, setupGameControllerInteractions } from "./controller";
 import { AppState, changeState, getCurrentGameState } from "./gameStates";
+import { getJigsawArray } from "./products";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
   let currentState: AppState = getCurrentGameState();
@@ -72,23 +73,6 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
     });
   });
 
-  function handleControllerInput(controller) {
-    switch (currentState) {
-      case AppState.MENU:
-        break;
-      case AppState.DESK_SELECT:
-        changeMotionControllerSelectDesk(scene, controller.motionController, planes);
-        break;
-      case AppState.GAME:
-        changeMotionControllerStartGame(scene, controller, controller.motionController);
-        break;
-      case AppState.GAME_OVER:
-        console.log("Game over...");
-      default:
-        console.log("State not recognized.");
-    }
-  }
-
   // GUI
   var guiPlane = MeshBuilder.CreatePlane("plane", {}) as AbstractMesh;
   guiPlane.position = new Vector3(0.4, 1.4, 0.4);
@@ -110,6 +94,10 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
 
   puzzleButton.onPointerClickObservable.add(() => {
     changeState(AppState.GAME);
+    const controllers = xrHelper.input.controllers;
+    controllers.forEach((controller) => {
+      setupGameControllerInteractions(scene, controller, getJigsawArray());
+    });
   });
 
   panel.addControl(header);

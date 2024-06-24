@@ -34,7 +34,7 @@ export function addPolygonForPlaneDetection(scene: Scene, planes: Mesh[], plane:
 
   plane.mesh.actionManager = new ActionManager(scene);
 
-  //ON MOUSE ENTER
+  //Trigger pressed on Plane
   plane.mesh.actionManager.registerAction(
     new ExecuteCodeAction(ActionManager.OnPickTrigger, function (ev) {
       let currentState: AppState = getCurrentGameState();
