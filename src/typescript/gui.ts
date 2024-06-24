@@ -17,3 +17,13 @@ export function configGUIButton(button: Button, buttonText: string) {
   button.background = "green";
   button.fontSize = 60;
 }
+
+export function getPrevNextButton(buttonText: string) {
+  const button = new BABYLON.GUI.Button3D(buttonText);
+  var text1 = new BABYLON.GUI.TextBlock();
+  text1.text = buttonText;
+  text1.color = "white";
+  text1.fontSize = 24;
+  button.content = text1;
+  return button;
+}

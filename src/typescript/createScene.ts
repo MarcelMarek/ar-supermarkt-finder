@@ -1,15 +1,13 @@
-import { Scene, Vector3, MeshBuilder, FreeCamera, Engine, WebXRPlaneDetector, Mesh, WebXRAnchorSystem, AbstractMesh } from "@babylonjs/core";
-import { addPolygonForPlaneDetection, removePolygonForPlaneDetection, updatePolygonForPlaneDetection } from "./planeDetector";
-import { addMeshForAnchorAddedObservable, removeMeshForAnchorRemovedObservable } from "./anchorSystem";
+import { Scene, Vector3, MeshBuilder, FreeCamera, Engine, WebXRPlaneDetector, Mesh, AbstractMesh } from "@babylonjs/core";
+import { addPolygonForPlaneDetection, removePolygonForPlaneDetection } from "./planeDetector";
 import { addDirectionalLight, addHemisphericLight } from "./light";
 import { configGUIButton, configGUIHeader } from "./gui";
 import { AdvancedDynamicTexture, Button, StackPanel, TextBlock } from "babylonjs-gui";
-import { onMotionControllerInitObservable, setupGameControllerInteractions } from "./controller";
-import { AppState, changeState, getCurrentGameState } from "./gameStates";
-import { getJigsawArray } from "./products";
+import { onMotionControllerInitObservable } from "./controller";
+import { AppState, changeState } from "./gameStates";
+import { loadJigsawGameUI } from "./jigsaw";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
-  let currentState: AppState = getCurrentGameState();
   var scene = new Scene(engine);
 
   var camera = new FreeCamera("camera1", new Vector3(0, 1, -5), scene); // creates and positions a free camera (non-mesh)
@@ -49,24 +47,7 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
     while (planes.pop()) {}
   });
 
-  // Anchors
-
-  const anchors = featuresManager.enableFeature(WebXRAnchorSystem.Name, "latest", {
-    doNotRemoveAnchorsOnSessionEnded: true,
-  }) as WebXRAnchorSystem;
-
-  if (anchors) {
-    anchors.onAnchorAddedObservable.add((anchor) => {
-      addMeshForAnchorAddedObservable(scene, anchor);
-    });
-
-    anchors.onAnchorRemovedObservable.add((anchor) => {
-      removeMeshForAnchorRemovedObservable(anchor);
-    });
-  }
-
   // Controller
-
   xrHelper.input.onControllerAddedObservable.add((controller) => {
     controller.onMotionControllerInitObservable.add((motionController) => {
       onMotionControllerInitObservable(scene, xrHelper, controller, controller.motionController);
@@ -94,10 +75,7 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
 
   puzzleButton.onPointerClickObservable.add(() => {
     changeState(AppState.GAME);
-    const controllers = xrHelper.input.controllers;
-    controllers.forEach((controller) => {
-      setupGameControllerInteractions(scene, controller, getJigsawArray());
-    });
+    loadJigsawGameUI(scene, xrHelper);
   });
 
   panel.addControl(header);
