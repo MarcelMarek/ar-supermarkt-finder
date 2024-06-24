@@ -1,26 +1,14 @@
-import {
-  Scene,
-  Vector3,
-  MeshBuilder,
-  FreeCamera,
-  Engine,
-  WebXRPlaneDetector,
-  Mesh,
-  WebXRAnchorSystem,
-  AbstractMesh,
-  WebXRExperienceHelper,
-} from "@babylonjs/core";
+import { Scene, Vector3, MeshBuilder, FreeCamera, Engine, WebXRPlaneDetector, Mesh, WebXRAnchorSystem, AbstractMesh } from "@babylonjs/core";
 import { addPolygonForPlaneDetection, removePolygonForPlaneDetection, updatePolygonForPlaneDetection } from "./planeDetector";
 import { addMeshForAnchorAddedObservable, removeMeshForAnchorRemovedObservable } from "./anchorSystem";
 import { addDirectionalLight, addHemisphericLight } from "./light";
 import { configGUIButton, configGUIHeader } from "./gui";
 import { AdvancedDynamicTexture, Button, StackPanel, TextBlock } from "babylonjs-gui";
-import { onMotionControllerInitObservable, onMotionControllerPlacePuzzleInitObservable, onMotionControllerSelectDeskInitObservable } from "./controller";
+import { onMotionControllerInitObservable, changeMotionControllerStartGame, changeMotionControllerSelectDesk } from "./controller";
+import { AppState, changeState, getCurrentGameState } from "./gameStates";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
-  let isSelectingDesk = false;
-  let isStartingGame = false;
-
+  let currentState: AppState = getCurrentGameState();
   var scene = new Scene(engine);
 
   var camera = new FreeCamera("camera1", new Vector3(0, 1, -5), scene); // creates and positions a free camera (non-mesh)
@@ -30,7 +18,7 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
   addDirectionalLight(scene);
   addHemisphericLight(scene);
 
-  var xr = await scene.createDefaultXRExperienceAsync({
+  var xrHelper = await scene.createDefaultXRExperienceAsync({
     uiOptions: {
       sessionMode: "immersive-ar",
       requiredFeatures: ["plane-detection"],
@@ -40,7 +28,7 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
   });
 
   // Hit-Test to search for walls
-  const featuresManager = xr.baseExperience.featuresManager;
+  const featuresManager = xrHelper.baseExperience.featuresManager;
 
   // Plane Detection
   const xrPlanes = featuresManager.enableFeature(WebXRPlaneDetector.Name, "latest") as WebXRPlaneDetector;
@@ -55,7 +43,7 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
     removePolygonForPlaneDetection(planes, plane);
   });
 
-  xr.baseExperience.sessionManager.onXRSessionInit.add(() => {
+  xrHelper.baseExperience.sessionManager.onXRSessionInit.add(() => {
     planes.forEach((plane) => plane.dispose());
     while (planes.pop()) {}
   });
@@ -78,26 +66,27 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
 
   // Controller
 
-  xr.input.onControllerAddedObservable.add((controller) => {
+  xrHelper.input.onControllerAddedObservable.add((controller) => {
     controller.onMotionControllerInitObservable.add((motionController) => {
-      onMotionControllerInitObservable(scene, xr, controller, motionController);
+      onMotionControllerInitObservable(scene, xrHelper, controller, controller.motionController);
     });
   });
 
-  if (isSelectingDesk) {
-    xr.input.onControllerAddedObservable.add((controller) => {
-      controller.onMotionControllerInitObservable.add((motionController) => {
-        onMotionControllerSelectDeskInitObservable(scene, controller, motionController, planes);
-      });
-    });
-  }
-
-  if (isStartingGame) {
-    xr.input.onControllerAddedObservable.add((controller) => {
-      controller.onMotionControllerInitObservable.add((motionController) => {
-        onMotionControllerPlacePuzzleInitObservable(scene, controller, motionController);
-      });
-    });
+  function handleControllerInput(controller) {
+    switch (currentState) {
+      case AppState.MENU:
+        break;
+      case AppState.DESK_SELECT:
+        changeMotionControllerSelectDesk(scene, controller.motionController, planes);
+        break;
+      case AppState.GAME:
+        changeMotionControllerStartGame(scene, controller, controller.motionController);
+        break;
+      case AppState.GAME_OVER:
+        console.log("Game over...");
+      default:
+        console.log("State not recognized.");
+    }
   }
 
   // GUI
@@ -115,11 +104,12 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
   configGUIButton(puzzleButton, "Starten Sie das Puzzle");
 
   deskButton.onPointerClickObservable.add(() => {
-    isSelectingDesk = true;
+    changeState(AppState.DESK_SELECT);
+    deskButton.textBlock.text = "Ausgewählt";
   });
 
   puzzleButton.onPointerClickObservable.add(() => {
-    isStartingGame = true;
+    changeState(AppState.GAME);
   });
 
   panel.addControl(header);

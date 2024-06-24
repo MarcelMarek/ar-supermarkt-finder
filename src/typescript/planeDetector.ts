@@ -1,4 +1,17 @@
-import { Color3, IWebXRPlane, Material, Mesh, PolygonMeshBuilder, Quaternion, Scene, StandardMaterial, Vector2 } from "@babylonjs/core";
+import {
+  ActionManager,
+  Color3,
+  ExecuteCodeAction,
+  IWebXRPlane,
+  Material,
+  Mesh,
+  PolygonMeshBuilder,
+  Quaternion,
+  Scene,
+  StandardMaterial,
+  Vector2,
+} from "@babylonjs/core";
+import { AppState, getCurrentGameState } from "./gameStates";
 
 export function addPolygonForPlaneDetection(scene: Scene, planes: Mesh[], plane: IWebXRPlane) {
   plane.polygonDefinition.push(plane.polygonDefinition[0]); // Die ersten und letzten Punkte sollten gleich sein, um die Form zu schließen
@@ -18,6 +31,22 @@ export function addPolygonForPlaneDetection(scene: Scene, planes: Mesh[], plane:
   plane.mesh.material = mat;
   plane.mesh.rotationQuaternion = new Quaternion(); // Rotation des Plane.Mesh
   plane.transformationMatrix.decompose(plane.mesh.scaling, plane.mesh.rotationQuaternion, plane.mesh.position); // Setzt Transformationen von Plane zu Mesh
+
+  plane.mesh.actionManager = new ActionManager(scene);
+
+  //ON MOUSE ENTER
+  plane.mesh.actionManager.registerAction(
+    new ExecuteCodeAction(ActionManager.OnPickTrigger, function (ev) {
+      let currentState: AppState = getCurrentGameState();
+      if (currentState === AppState.DESK_SELECT) {
+        planes.forEach((_plane) => {
+          if (_plane !== plane.mesh) {
+            _plane.dispose();
+          }
+        });
+      }
+    })
+  );
 }
 
 export function updatePolygonForPlaneDetection(scene: Scene, planes: Mesh[], plane: IWebXRPlane) {

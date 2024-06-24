@@ -8,6 +8,7 @@ import {
   AbstractMesh,
   WebXRDefaultExperience,
   Color3,
+  WebXRControllerComponent,
 } from "@babylonjs/core";
 import { getJigsawArray } from "./products";
 
@@ -17,7 +18,7 @@ function createRayFromController(controller: WebXRInputSource): Ray {
   return new Ray(origin, direction, (length = 100));
 }
 
-export function onMotionControllerPlacePuzzleInitObservable(scene: Scene, controller: WebXRInputSource, motionController: WebXRAbstractMotionController) {
+export function changeMotionControllerStartGame(scene: Scene, controller: WebXRInputSource, motionController: WebXRAbstractMotionController) {
   let draggedPart;
   const jigsawPuzzleParts = getJigsawArray();
 
@@ -80,15 +81,9 @@ export function onMotionControllerInitObservable(
   });
 }
 
-export function onMotionControllerSelectDeskInitObservable(
-  scene: Scene,
-  controller: WebXRInputSource,
-  motionController: WebXRAbstractMotionController,
-  planes: AbstractMesh[]
-) {
-  if (motionController.handness === "right") {
-    const xr_ids = motionController.getComponentIds();
-    let triggerComponent = motionController.getComponent(xr_ids[0]);
+export function changeMotionControllerSelectDesk(scene: Scene, controller: WebXRInputSource, planes: AbstractMesh[]) {
+  if (controller.motionController && controller.motionController.handness === "right") {
+    let triggerComponent = controller.motionController.getComponent("xr-standard-trigger");
     triggerComponent.onButtonStateChangedObservable.add(() => {
       const resultRay = createRayFromController(controller);
       const raycastHit = scene.pickWithRay(resultRay);
@@ -106,7 +101,7 @@ export function onMotionControllerSelectDeskInitObservable(
   }
 }
 
-function handleMeshHighlighting(triggerComponent, scene, xrHelper, controller) {
+function handleMeshHighlighting(triggerComponent: WebXRControllerComponent, scene: Scene, xrHelper: WebXRDefaultExperience, controller: WebXRInputSource) {
   let mesh = scene.meshUnderPointer;
   console.log(mesh && mesh.name);
 
@@ -122,7 +117,7 @@ function handleMeshHighlighting(triggerComponent, scene, xrHelper, controller) {
   }
 }
 
-function highlightMesh(mesh) {
+function highlightMesh(mesh: AbstractMesh) {
   if (mesh) {
     mesh.renderOutline = true;
     mesh.outlineColor = Color3.Red(); // Set the outline color to red
@@ -130,7 +125,7 @@ function highlightMesh(mesh) {
   }
 }
 
-function removeMeshHighlight(mesh) {
+function removeMeshHighlight(mesh: AbstractMesh) {
   if (mesh) {
     mesh.renderOutline = false;
   }
