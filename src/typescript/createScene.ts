@@ -1,12 +1,11 @@
 import { Scene, Vector3, MeshBuilder, FreeCamera, Engine, WebXRPlaneDetector, Mesh, AbstractMesh } from "@babylonjs/core";
-import { addPolygonForPlaneDetection, addXrPlanesObserver, getPlanes, removePolygonForPlaneDetection } from "./planeDetector";
+import { addXrPlanesObserver, getPlanes } from "./planeDetector";
 import { addDirectionalLight, addHemisphericLight } from "./light";
 import { configGUIButton, configGUIHeader } from "./gui";
 import { AdvancedDynamicTexture, Button, StackPanel, TextBlock } from "babylonjs-gui";
 import { onMotionControllerInitObservable } from "./controller";
 import { AppState, changeState } from "./gameStates";
 import { loadJigsawGameUI as loadJigsawGameHUD } from "./jigsaw";
-import { placeGameBoard } from "./gameBoard";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
   var scene = new Scene(engine);

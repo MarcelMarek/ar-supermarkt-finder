@@ -36,6 +36,8 @@ export function getJigsawPiecesArray(): Array<JigsawPiece> {
   return shuffleArray(jigsawArray); // Randomize the array
 }
 
+export const getJigsawPiecesArrayLength = () => getJigsawPiecesArray().length;
+
 export function loadJigsawGameUI(scene: any, xrHelper: WebXRDefaultExperience) {
   var manager = new BABYLON.GUI.GUI3DManager(scene);
 
