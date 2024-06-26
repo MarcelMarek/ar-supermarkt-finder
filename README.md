@@ -1,41 +1,62 @@
-# AR Supermarkt Finder
+# AR Puzzle
 
-## Einleitung
+Bei diesem Projekt handelt es sich um eine [BabylonJS](https://doc.babylonjs.com/) -basierte WebApp, die für das Lösen von Puzzles in einer WebXR-Umgebung entwickelt wurde und es den Benutzern ermöglicht, Puzzleteile auf einer Oberfläche in der erweiterten Realität zu platzieren. Dabei wird BabylonJS für das Rendering und WebXR für die Augmented-Reality-Funktionen verwendet.
 
-An AR App to assist your search for products in a supermarket.
+## Was beinhaltet das Projekt?
 
-## Erfahrungen und Schwierigkeiten
+Hier eine kurze Zusammenfassung der Module und ihrer Schwerpunkte:
 
-### Aufsetzen des Servers für eine Verbindung mit der Quest 3
+[![BabylonJS Logo](https://github.com/Symbitic/awesome-babylonjs/raw/main/media/logo.svg)](https://www.babylonjs.com/)
 
-- Problem: WebXR erlaubt nur HTTPS-Seiten.
-- Lösung: Befehl (npx webpack serve --server-type https)
-- Weitere Lösung: Live Server (adb reverse tcp:3000 tcp:5500, adb reverse --remove-all)
+> **app.ts** Einstiegspunkt der Anwendung, Initialisierung der Anwendung und Einrichtung der BabylonJS-Engine und WebXR-Erfahrung.
 
-### Wandkollision wirkt sich nicht auf Objekt in der Szene aus
+> **createScene.ts** Konzentriert sich auf das Einrichten der BabylonJS-Szene, einschließlich Beleuchtung, Kamera und das Laden von Assets.
 
-- Problem: Ein Torus-Objekt ist in der Szene sichtbar, aber der HitTest ist nicht verfügbar (Torus bleibt flach an den Wänden und dreht sich nicht zur Wand hin).
-- Lösung: Quest 3 benötigt Raumscan für das Interagieren mit der babylonjs Szene.
-- Weitere Lösung: Punktwolken (Raumscans) können geteilt werden
+> **planeDetector.ts** Beteiligt an der Erkennung von Ebenen in der realen Welt mit WebXR, so dass die Benutzer eine Oberfläche auswählen können, auf der das Puzzle platziert werden soll.
 
-### Raumscans (mit definierten Objekten) ist in der Größe begrenzt
+> **controller.ts** Verwaltet Eingaben von Controllern in der WebXR-Umgebung und verarbeitet Benutzerinteraktionen wie das Auswählen und Verschieben von Puzzleteilen.
 
-- Problem: Zu kleine Raumgröße der Qest 3. Nach 10 x 10 Meter ist Scannen der Umgebung möglich. Allerdings können keine Möbelstücke, außerhalb des 10x10 Bereiches, hinzugefügt werden.
-- Lösung: Mehrere aneinander gereihte Räume können als ein großer Raum agieren. Über "Punktwolke mit Meta teilen" können diese Räume für Andere zur Verfügung gestellt werden.
+> **gui.ts** Verwaltet die Elemente der grafischen Benutzeroberfläche und erstellt und verwaltet Button, Panel und andere UI-Komponenten für das Spiel.
 
-- Bachelorarbeit BabylonJS (AR)
+> **gameStates.ts** Verwaltet die verschiedenen States des Spiels( z. B. MENU, DESK_SELECT, GAME, GAME_OVER) und erleichtert Zustandsübergänge auf der Grundlage von Benutzeraktionen oder Spielereignissen.
 
-Szene kann über "Punktwolke mit Meta teilen" geteilt werden
+> **gameBoard.ts** Enthält die Logik für die Platzierung des Spielbretts in der AR-Umgebung, einschließlich der Erstellung eines Rasters, auf dem die Puzzleteile platziert werden können.
 
-### Laden der Rauminformationen in babylonjs
+> **jigsaw.ts** Dieses Modul ist das Herzstück der Puzzle-Logik. Es erzeugt die Puzzleteile, verwaltet ihre Platzierung und prüft gegebenenfalls, ob sie richtig platziert wurden.
 
-- Problem: Das Interface IWebXRPlane besitzt nicht ein Mesh Objekt namens mesh (BabylonJS-Beispiel besitzt jedoch eines: https://playground.babylonjs.com/#98TM63)
-- Lösung: IWebXRPlane modifizieren und mesh hinzufügen
+## Wie wird das Projekt gestartet?
 
-- Problem: Keine Anzeige der Rauminformationen. Fehlermeldung "earcut is missing"
-- Lösung: Skript hinzugefügt (<script src="https://cdn.babylonjs.com/earcut.min.js"></script>)
+Da WebXR nur auf sicheren Websites (https) oder localhost funktioniert, müssen Sie, um die Anwendung mit einer Netzwerk-IP-Adresse zu starten, ein Zertifikat mit der Webseite verknüpfen. Dazu können Sie openssl verwenden und die folgenden Befehle im Anwendungsverzeichnis ausführen:
 
-Anchors
-20 min Präsentation
-Video der Präsentation, statt langem Text
-(Scrcpy außen und innen aufnehmen zum)
+```
+openssl genrsa -out private_key.pem
+```
+
+```
+openssl req -new -key private_key.pem -out csr.pem
+```
+
+```
+openssl x509 -req -days 9999 -in csr.pem -signkey private_key.pem -out cert.pem
+```
+
+Sobald Sie das Zertifikat erstellt haben, können Sie die Anwendung mit den folgenden Befehlen starten:
+
+```
+npm run start
+```
+
+## Hilfreiche Links mit Beispielen für AR
+
+Eine Liste toller Dinge, die mit der Babylon.js-Spielengine zu tun haben:
+
+```
+https://github.com/Symbitic/awesome-babylonjs
+
+```
+
+Eine Liste toller Dinge, die mit der WebXR-API realisiert wurden:
+
+```
+https://immersive-web.github.io/webxr-samples/
+```
