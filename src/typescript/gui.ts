@@ -1,4 +1,6 @@
 import { Button, Control, TextBlock } from "babylonjs-gui";
+import { addControlsToPanel, getJigsawPiecesArray, getVisibleParts, transformJigsawPieceToMeshButton3D } from "./jigsaw";
+import { Scene, WebXRDefaultExperience } from "@babylonjs/core";
 
 export function configGUIHeader(header: TextBlock) {
   header.text = "Puzzle Game";
@@ -18,12 +20,54 @@ export function configGUIButton(button: Button, buttonText: string) {
   button.fontSize = 60;
 }
 
-export function getPrevNextButton(buttonText: string) {
+export function getPrevNextButton(
+  xrHelper: WebXRDefaultExperience,
+  scene: Scene,
+  buttonText: string,
+  panel: BABYLON.GUI.StackPanel3D,
+  currentIndex: number,
+  amountOfPartsToShowInUi: number
+) {
   const button = new BABYLON.GUI.Button3D(buttonText);
   var text1 = new BABYLON.GUI.TextBlock();
   text1.text = buttonText;
   text1.color = "white";
-  text1.fontSize = 24;
+  text1.fontSize = 48;
   button.content = text1;
+
+  switch (buttonText) {
+    case "Previous":
+      // Logic for previous button
+      button.onPointerClickObservable.add(() => {
+        const allJigsawPieces = getJigsawPiecesArray();
+        const oldPartsToShowInUi = getVisibleParts(allJigsawPieces, currentIndex, amountOfPartsToShowInUi);
+        currentIndex = currentIndex - 1 < 0 ? currentIndex - 1 : currentIndex;
+        const partsToShowInUi = getVisibleParts(getJigsawPiecesArray(), currentIndex, amountOfPartsToShowInUi);
+
+        const oldJigsawPartsInUi = oldPartsToShowInUi.map((part) => transformJigsawPieceToMeshButton3D(scene, xrHelper, part));
+
+        const jigsawPartsInUi = partsToShowInUi.map((part) => transformJigsawPieceToMeshButton3D(scene, xrHelper, part));
+
+        addControlsToPanel(panel, oldJigsawPartsInUi, jigsawPartsInUi);
+      });
+      break;
+    case "Next":
+      // Logic for next button
+      button.onPointerClickObservable.add(() => {
+        const allJigsawPieces = getJigsawPiecesArray();
+        const oldPartsToShowInUi = getVisibleParts(allJigsawPieces, currentIndex, amountOfPartsToShowInUi);
+        currentIndex = currentIndex + 1 < allJigsawPieces.length ? currentIndex + 1 : currentIndex;
+        const partsToShowInUi = getVisibleParts(allJigsawPieces, currentIndex, amountOfPartsToShowInUi);
+
+        const oldJigsawPartsInUi = oldPartsToShowInUi.map((part) => transformJigsawPieceToMeshButton3D(scene, xrHelper, part));
+        const jigsawPartsInUi = partsToShowInUi.map((part) => transformJigsawPieceToMeshButton3D(scene, xrHelper, part));
+
+        addControlsToPanel(panel, oldJigsawPartsInUi, jigsawPartsInUi);
+      });
+      break;
+    default:
+      console.error("Invalid button type");
+  }
+
   return button;
 }

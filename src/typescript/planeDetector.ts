@@ -10,8 +10,26 @@ import {
   Scene,
   StandardMaterial,
   Vector2,
+  WebXRPlaneDetector,
 } from "@babylonjs/core";
 import { AppState, getCurrentGameState } from "./gameStates";
+import { placeGameBoard } from "./gameBoard";
+
+const planes: Mesh[] = [];
+
+export function getPlanes() {
+  return planes;
+}
+
+export function addXrPlanesObserver(scene: Scene, xrPlanes: WebXRPlaneDetector) {
+  xrPlanes.onPlaneAddedObservable.add((plane) => {
+    addPolygonForPlaneDetection(scene, planes, plane);
+  });
+
+  xrPlanes.onPlaneRemovedObservable.add((plane) => {
+    removePolygonForPlaneDetection(planes, plane);
+  });
+}
 
 export function addPolygonForPlaneDetection(scene: Scene, planes: Mesh[], plane: IWebXRPlane) {
   plane.polygonDefinition.push(plane.polygonDefinition[0]); // Die ersten und letzten Punkte sollten gleich sein, um die Form zu schließen
@@ -42,6 +60,8 @@ export function addPolygonForPlaneDetection(scene: Scene, planes: Mesh[], plane:
         planes.forEach((_plane) => {
           if (_plane !== plane.mesh) {
             _plane.dispose();
+          } else {
+            placeGameBoard(scene, plane.mesh);
           }
         });
       }

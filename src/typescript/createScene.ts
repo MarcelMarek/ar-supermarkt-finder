@@ -1,11 +1,12 @@
 import { Scene, Vector3, MeshBuilder, FreeCamera, Engine, WebXRPlaneDetector, Mesh, AbstractMesh } from "@babylonjs/core";
-import { addPolygonForPlaneDetection, removePolygonForPlaneDetection } from "./planeDetector";
+import { addPolygonForPlaneDetection, addXrPlanesObserver, getPlanes, removePolygonForPlaneDetection } from "./planeDetector";
 import { addDirectionalLight, addHemisphericLight } from "./light";
 import { configGUIButton, configGUIHeader } from "./gui";
 import { AdvancedDynamicTexture, Button, StackPanel, TextBlock } from "babylonjs-gui";
 import { onMotionControllerInitObservable } from "./controller";
 import { AppState, changeState } from "./gameStates";
-import { loadJigsawGameUI } from "./jigsaw";
+import { loadJigsawGameUI as loadJigsawGameHUD } from "./jigsaw";
+import { placeGameBoard } from "./gameBoard";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
   var scene = new Scene(engine);
@@ -31,16 +32,9 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
 
   // Plane Detection
   const xrPlanes = featuresManager.enableFeature(WebXRPlaneDetector.Name, "latest") as WebXRPlaneDetector;
+  const planes = getPlanes() as Mesh[];
 
-  const planes: Mesh[] = [];
-
-  xrPlanes.onPlaneAddedObservable.add((plane) => {
-    addPolygonForPlaneDetection(scene, planes, plane);
-  });
-
-  xrPlanes.onPlaneRemovedObservable.add((plane) => {
-    removePolygonForPlaneDetection(planes, plane);
-  });
+  addXrPlanesObserver(scene, xrPlanes);
 
   xrHelper.baseExperience.sessionManager.onXRSessionInit.add(() => {
     planes.forEach((plane) => plane.dispose());
@@ -73,9 +67,9 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
     deskButton.textBlock.text = "Ausgewählt";
   });
 
+  loadJigsawGameHUD(scene, xrHelper);
   puzzleButton.onPointerClickObservable.add(() => {
     changeState(AppState.GAME);
-    loadJigsawGameUI(scene, xrHelper);
   });
 
   panel.addControl(header);
