@@ -6,6 +6,7 @@ import { AdvancedDynamicTexture, Button, StackPanel, TextBlock } from "babylonjs
 import { onMotionControllerInitObservable } from "./controller";
 import { AppState, changeState } from "./gameStates";
 import { loadJigsawGameUI as loadJigsawGameHUD } from "./jigsaw";
+import { WebXRDefaultExperience } from "@babylonjs/core";
 
 export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
   var scene = new Scene(engine);
@@ -17,14 +18,14 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
   addDirectionalLight(scene);
   addHemisphericLight(scene);
 
-  var xrHelper = await scene.createDefaultXRExperienceAsync({
+  var xrHelper = (await scene.createDefaultXRExperienceAsync({
     uiOptions: {
       sessionMode: "immersive-ar",
       requiredFeatures: ["plane-detection"],
       referenceSpaceType: "local-floor",
     },
     optionalFeatures: true,
-  });
+  })) as WebXRDefaultExperience;
 
   // Hit-Test to search for walls
   const featuresManager = xrHelper.baseExperience.featuresManager;
@@ -33,7 +34,7 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
   const xrPlanes = featuresManager.enableFeature(WebXRPlaneDetector.Name, "latest") as WebXRPlaneDetector;
   const planes = getPlanes() as Mesh[];
 
-  addXrPlanesObserver(scene, xrPlanes);
+  addXrPlanesObserver(xrHelper, scene, xrPlanes);
 
   xrHelper.baseExperience.sessionManager.onXRSessionInit.add(() => {
     planes.forEach((plane) => plane.dispose());

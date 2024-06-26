@@ -1,6 +1,8 @@
-import { Color3, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
+import { ActionManager, Color3, ExecuteCodeAction, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3, WebXRDefaultExperience } from "@babylonjs/core";
+import { getJigsawPieceOnController, getJigsawPiecesArrayLength } from "./jigsaw";
+import { AppState } from "./gameStates";
 
-function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
+function createGrid(xrHelper: WebXRDefaultExperience, scene: Scene, plane: Mesh, rows: number, cols: number) {
   const gridLines = [];
   const planeSize = plane.getBoundingInfo().boundingBox.extendSize.scale(2);
   const cellWidth = planeSize.x / cols;
@@ -34,8 +36,9 @@ function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
         planeCenter.z - planeSize.z / 2 + cellHeight / 2 + i * cellHeight
       );
 
-      const cellPlane = MeshBuilder.CreatePlane(`cellPlane_${i}_${j}`, { width: cellWidth * 0.95, height: cellHeight * 0.95 }, scene);
+      const cellPlane = MeshBuilder.CreatePlane(`cellPlane_${i}_${j}`, { width: cellWidth * 0.99, height: cellHeight * 0.99 }, scene);
       cellPlane.position = cellCenter;
+      cellPlane.position.y += 0.05; // Slightly above the base plane
 
       // Apply the same rotation as the base plane to each cell plane
       cellPlane.rotation = basePlaneRotation.clone();
@@ -45,6 +48,18 @@ function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
       const cellMaterial = new StandardMaterial(`cellMaterial_${i}_${j}`, scene);
       cellMaterial.diffuseColor = new Color3(1, 1, 1); // Random color for each cell
       cellPlane.material = cellMaterial;
+
+      cellPlane.isPickable = true;
+
+      cellPlane.actionManager = new ActionManager(scene);
+      cellPlane.actionManager.registerAction(
+        new ExecuteCodeAction(ActionManager.OnPickTrigger, function (evt) {
+          if (AppState.GAME) {
+            const jigsawPieceOnController = getJigsawPieceOnController();
+            cellPlane.material = jigsawPieceOnController.material;
+          }
+        })
+      );
     }
   }
 
@@ -53,6 +68,8 @@ function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
   lines.color = new Color3(0, 0, 0);
 }
 
-export function placeGameBoard(scene: Scene, plane: Mesh) {
-  createGrid(scene, plane, 10, 10); // Create a 10x10 grid
+export function placeGameBoard(xrHelper: WebXRDefaultExperience, scene: Scene, plane: Mesh) {
+  const size = getJigsawPiecesArrayLength();
+
+  createGrid(xrHelper, scene, plane, size / 2, size / 2); // Create a 10x10 grid
 }

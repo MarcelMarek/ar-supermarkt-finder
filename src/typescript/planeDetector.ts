@@ -10,6 +10,7 @@ import {
   Scene,
   StandardMaterial,
   Vector2,
+  WebXRDefaultExperience,
   WebXRPlaneDetector,
 } from "@babylonjs/core";
 import { AppState, getCurrentGameState } from "./gameStates";
@@ -21,9 +22,9 @@ export function getPlanes() {
   return planes;
 }
 
-export function addXrPlanesObserver(scene: Scene, xrPlanes: WebXRPlaneDetector) {
+export function addXrPlanesObserver(xrHelper: WebXRDefaultExperience, scene: Scene, xrPlanes: WebXRPlaneDetector) {
   xrPlanes.onPlaneAddedObservable.add((plane) => {
-    addPolygonForPlaneDetection(scene, planes, plane);
+    addPolygonForPlaneDetection(xrHelper, scene, planes, plane);
   });
 
   xrPlanes.onPlaneRemovedObservable.add((plane) => {
@@ -31,7 +32,7 @@ export function addXrPlanesObserver(scene: Scene, xrPlanes: WebXRPlaneDetector) 
   });
 }
 
-export function addPolygonForPlaneDetection(scene: Scene, planes: Mesh[], plane: IWebXRPlane) {
+export function addPolygonForPlaneDetection(xrHelper: WebXRDefaultExperience, scene: Scene, planes: Mesh[], plane: IWebXRPlane) {
   plane.polygonDefinition.push(plane.polygonDefinition[0]); // Die ersten und letzten Punkte sollten gleich sein, um die Form zu schließen
   var polygon_triangulation = new PolygonMeshBuilder(
     "name",
@@ -61,7 +62,7 @@ export function addPolygonForPlaneDetection(scene: Scene, planes: Mesh[], plane:
           if (_plane !== plane.mesh) {
             _plane.dispose();
           } else {
-            placeGameBoard(scene, plane.mesh);
+            placeGameBoard(xrHelper, scene, plane.mesh);
           }
         });
       }

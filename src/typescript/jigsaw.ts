@@ -16,6 +16,16 @@ import { JigsawPiece } from "./interfaces/jigsaw";
 import { shuffleArray } from "./helper";
 import { getPrevNextButton } from "./gui";
 
+let jigsawPieceOnController = null as Mesh;
+
+function setJigsawPieceOnController(jigsawPiece: Mesh) {
+  jigsawPieceOnController = jigsawPiece;
+}
+
+export function getJigsawPieceOnController() {
+  return jigsawPieceOnController;
+}
+
 function createJigsawMesh(name: string, position: Vector3): JigsawPiece {
   const jigsawMesh = MeshBuilder.CreateBox(name, { height: 0.15, width: 0.25, depth: 0.1 }) as AbstractMesh;
   var materialBox = new StandardMaterial("texture1");
@@ -131,7 +141,9 @@ function stickJigsawPieceToController(controller: WebXRInputSource, jigsawPiece:
   jigsawPiece.rotationQuaternion = Quaternion.Identity();
   if (controller.inputSource.handedness[0] === "l") {
     jigsawPiece.locallyTranslate(new Vector3(-0.6, 0, 0));
+    setJigsawPieceOnController(jigsawPiece);
   } else {
     jigsawPiece.locallyTranslate(new Vector3(0.6, 0, 0));
+    setJigsawPieceOnController(jigsawPiece);
   }
 }
