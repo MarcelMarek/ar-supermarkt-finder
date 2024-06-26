@@ -6,8 +6,6 @@ Bei diesem Projekt handelt es sich um eine [BabylonJS](https://doc.babylonjs.com
 
 Hier eine kurze Zusammenfassung der Module und ihrer Schwerpunkte:
 
-[![BabylonJS Logo](https://github.com/Symbitic/awesome-babylonjs/raw/main/media/logo.svg)](https://www.babylonjs.com/)
-
 > **app.ts** Einstiegspunkt der Anwendung, Initialisierung der Anwendung und Einrichtung der BabylonJS-Engine und WebXR-Erfahrung.
 
 > **createScene.ts** Konzentriert sich auf das Einrichten der BabylonJS-Szene, einschließlich Beleuchtung, Kamera und das Laden von Assets.
