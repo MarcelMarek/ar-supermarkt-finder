@@ -1,28 +1,30 @@
 import { ActionManager, Color3, ExecuteCodeAction, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { getJigsawPieceOnController, getJigsawPiecesArrayLength } from "./jigsaw";
 import { AppState } from "./gameStates";
+import { GridInterface } from "./interfaces/grid";
 
 function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
-  const gridLines = [];
-  const planeSize = plane.getBoundingInfo().boundingBox.extendSize.scale(2);
-  const cellWidth = planeSize.x / cols;
-  const cellHeight = planeSize.z / rows;
-  const planeCenter = plane.position; // Center of the plane
+  const gridObjet = {} as GridInterface;
+  gridObjet.gridLines = [];
+  gridObjet.planeSize = plane.getBoundingInfo().boundingBox.extendSize.scale(2);
+  gridObjet.cellWidth = gridObjet.planeSize.x / cols;
+  gridObjet.cellHeight = gridObjet.planeSize.z / rows;
+  gridObjet.planeCenter = plane.position; // Center of the plane
 
   // Vertical lines
   for (let i = 0; i <= cols; i++) {
-    const xOffset = -planeSize.x / 2 + i * cellWidth;
-    const start = new Vector3(planeCenter.x + xOffset, planeCenter.y, planeCenter.z - planeSize.z / 2);
-    const end = new Vector3(planeCenter.x + xOffset, planeCenter.y, planeCenter.z + planeSize.z / 2);
-    gridLines.push([start, end]);
+    const xOffset = -gridObjet.planeSize.x / 2 + i * gridObjet.cellWidth;
+    const start = new Vector3(gridObjet.planeCenter.x + xOffset, gridObjet.planeCenter.y, gridObjet.planeCenter.z - gridObjet.planeSize.z / 2);
+    const end = new Vector3(gridObjet.planeCenter.x + xOffset, gridObjet.planeCenter.y, gridObjet.planeCenter.z + gridObjet.planeSize.z / 2);
+    gridObjet.gridLines.push([start, end]);
   }
 
   // Horizontal lines
   for (let i = 0; i <= rows; i++) {
-    const zOffset = -planeSize.z / 2 + i * cellHeight;
-    const start = new Vector3(planeCenter.x - planeSize.x / 2, planeCenter.y, planeCenter.z + zOffset);
-    const end = new Vector3(planeCenter.x + planeSize.x / 2, planeCenter.y, planeCenter.z + zOffset);
-    gridLines.push([start, end]);
+    const zOffset = -gridObjet.planeSize.z / 2 + i * gridObjet.cellHeight;
+    const start = new Vector3(gridObjet.planeCenter.x - gridObjet.planeSize.x / 2, gridObjet.planeCenter.y, gridObjet.planeCenter.z + zOffset);
+    const end = new Vector3(gridObjet.planeCenter.x + gridObjet.planeSize.x / 2, gridObjet.planeCenter.y, gridObjet.planeCenter.z + zOffset);
+    gridObjet.gridLines.push([start, end]);
   }
 
   const basePlaneRotation = plane.rotation;
@@ -31,12 +33,12 @@ function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
       const cellCenter = new Vector3(
-        planeCenter.x - planeSize.x / 2 + cellWidth / 2 + j * cellWidth,
-        planeCenter.y,
-        planeCenter.z - planeSize.z / 2 + cellHeight / 2 + i * cellHeight
+        gridObjet.planeCenter.x - gridObjet.planeSize.x / 2 + gridObjet.cellWidth / 2 + j * gridObjet.cellWidth,
+        gridObjet.planeCenter.y,
+        gridObjet.planeCenter.z - gridObjet.planeSize.z / 2 + gridObjet.cellHeight / 2 + i * gridObjet.cellHeight
       );
 
-      const cellPlane = MeshBuilder.CreatePlane(`cellPlane_${i}_${j}`, { width: cellWidth * 0.99, height: cellHeight * 0.99 }, scene);
+      const cellPlane = MeshBuilder.CreatePlane(`cellPlane_${i}_${j}`, { width: gridObjet.cellWidth * 0.99, height: gridObjet.cellHeight * 0.99 }, scene);
       cellPlane.position = cellCenter;
       cellPlane.position.y += 0.05; // Slightly above the base plane
 
@@ -64,7 +66,7 @@ function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
   }
 
   // Create lines mesh for the grid
-  const lines = MeshBuilder.CreateLineSystem("gridLines", { lines: gridLines }, scene);
+  const lines = MeshBuilder.CreateLineSystem("gridLines", { lines: gridObjet.gridLines }, scene);
   lines.color = new Color3(0, 0, 0);
 }
 
