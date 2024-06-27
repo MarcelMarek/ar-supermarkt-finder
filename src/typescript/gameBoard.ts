@@ -1,8 +1,8 @@
-import { ActionManager, Color3, ExecuteCodeAction, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3, WebXRDefaultExperience } from "@babylonjs/core";
+import { ActionManager, Color3, ExecuteCodeAction, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { getJigsawPieceOnController, getJigsawPiecesArrayLength } from "./jigsaw";
 import { AppState } from "./gameStates";
 
-function createGrid(xrHelper: WebXRDefaultExperience, scene: Scene, plane: Mesh, rows: number, cols: number) {
+function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
   const gridLines = [];
   const planeSize = plane.getBoundingInfo().boundingBox.extendSize.scale(2);
   const cellWidth = planeSize.x / cols;
@@ -68,8 +68,8 @@ function createGrid(xrHelper: WebXRDefaultExperience, scene: Scene, plane: Mesh,
   lines.color = new Color3(0, 0, 0);
 }
 
-export function placeGameBoard(xrHelper: WebXRDefaultExperience, scene: Scene, plane: Mesh) {
+export function placeGameBoard(scene: Scene, plane: Mesh) {
   const size = getJigsawPiecesArrayLength();
 
-  createGrid(xrHelper, scene, plane, size / 2, size / 2); // Create a 10x10 grid
+  createGrid(scene, plane, size / 2, size / 2); // Create a 10x10 grid
 }

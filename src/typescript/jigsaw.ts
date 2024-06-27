@@ -12,9 +12,8 @@ import {
   WebXRDefaultExperience,
   WebXRInputSource,
 } from "@babylonjs/core";
-import { JigsawPiece } from "./interfaces/jigsaw";
+import { JigsawPieceInterface } from "./interfaces/jigsaw";
 import { shuffleArray } from "./helper";
-import { getPrevNextButton } from "./gui";
 
 let jigsawPieceOnController = null as Mesh;
 
@@ -26,7 +25,7 @@ export function getJigsawPieceOnController() {
   return jigsawPieceOnController;
 }
 
-function createJigsawMesh(name: string, position: Vector3): JigsawPiece {
+function createJigsawMesh(name: string, position: Vector3): JigsawPieceInterface {
   const jigsawMesh = MeshBuilder.CreateBox(name, { height: 0.15, width: 0.25, depth: 0.1 }) as AbstractMesh;
   const materialBox = new StandardMaterial("texture1");
   materialBox.diffuseColor = new Color3(0, 1, 0); // Green
@@ -35,8 +34,8 @@ function createJigsawMesh(name: string, position: Vector3): JigsawPiece {
   return { name: name, mesh: jigsawMesh, correctPosition: position };
 }
 
-export function getJigsawPiecesArray(): Array<JigsawPiece> {
-  const jigsawArray: JigsawPiece[] = [];
+export function getJigsawPiecesArray(): Array<JigsawPieceInterface> {
+  const jigsawArray: JigsawPieceInterface[] = [];
   const gridSize = Math.sqrt(10); // For example, for 10 parts
   for (let i = 0; i < 3; i++) {
     // Calculate grid position based on index
@@ -47,42 +46,6 @@ export function getJigsawPiecesArray(): Array<JigsawPiece> {
 }
 
 export const getJigsawPiecesArrayLength = () => getJigsawPiecesArray().length;
-
-export function loadJigsawGameUI(scene: Scene, xrHelper: WebXRDefaultExperience) {
-  const manager = new BABYLON.GUI.GUI3DManager(scene);
-
-  // Create a horizontal stack panel
-  const panel = new BABYLON.GUI.StackPanel3D();
-  panel.isVertical = false;
-  panel.margin = 1.2;
-
-  manager.addControl(panel);
-
-  const currentIndex = 0;
-  const amountOfPartsToShowInUi = 1;
-
-  const partsToShowInUi = getVisibleParts(getJigsawPiecesArray(), currentIndex, amountOfPartsToShowInUi);
-
-  const jigsawPartsInUi = partsToShowInUi.map((part) => transformJigsawPieceToMeshButton3D(scene, xrHelper, part));
-
-  const prevButton = getPrevNextButton(xrHelper, scene, "Previous", panel, currentIndex, amountOfPartsToShowInUi);
-  const nextButton = getPrevNextButton(xrHelper, scene, "Next", panel, currentIndex, amountOfPartsToShowInUi);
-
-  panel.blockLayout = true;
-  panel.addControl(prevButton);
-  addControlsToPanel(panel, jigsawPartsInUi, jigsawPartsInUi);
-  panel.addControl(nextButton);
-  panel.blockLayout = false;
-
-  panel.linkToTransformNode(scene.activeCamera);
-  panel.position.addInPlaceFromFloats(0, -2, 6);
-  panel.scaling.x = 0.6;
-  panel.scaling.y = 0.6;
-
-  xrHelper.baseExperience.sessionManager.onXRSessionInit.add(() => {
-    panel.linkToTransformNode(xrHelper.baseExperience.camera);
-  });
-}
 
 export function addControlsToPanel(
   panel: BABYLON.GUI.StackPanel3D,
@@ -103,17 +66,17 @@ export function addControlsToPanel(
   });
 }
 
-export function updateVisibleParts(jigsawParts: JigsawPiece[], currentIndex: number, visiblePartsCount: number) {
+export function updateVisibleParts(jigsawParts: JigsawPieceInterface[], currentIndex: number, visiblePartsCount: number) {
   jigsawParts.forEach((part, index) => {
     part.mesh.isVisible = index >= currentIndex && index < currentIndex + visiblePartsCount;
   });
 }
 
-export function getVisibleParts(jigsawParts: JigsawPiece[], currentIndex: number, visiblePartsCount: number) {
+export function getVisibleParts(jigsawParts: JigsawPieceInterface[], currentIndex: number, visiblePartsCount: number) {
   return jigsawParts.slice(currentIndex, currentIndex + visiblePartsCount);
 }
 
-export function transformJigsawPieceToMeshButton3D(scene: Scene, xrHelper: WebXRDefaultExperience, part: JigsawPiece) {
+export function transformJigsawPieceToMeshButton3D(scene: Scene, xrHelper: WebXRDefaultExperience, part: JigsawPieceInterface) {
   const imageUrl = `../assets/${part.name}.jpg`;
   const plane = CreatePlane(`plane_${part.name}`, { width: 1.0, height: 1.0 }, scene);
 

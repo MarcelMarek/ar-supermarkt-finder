@@ -1,6 +1,41 @@
-import { Button, Control, TextBlock } from "babylonjs-gui";
+import { AdvancedDynamicTexture, Button, Control, StackPanel, TextBlock } from "babylonjs-gui";
 import { addControlsToPanel, getJigsawPiecesArray, getVisibleParts, transformJigsawPieceToMeshButton3D } from "./jigsaw";
-import { Scene, WebXRDefaultExperience } from "@babylonjs/core";
+import { AbstractMesh, MeshBuilder, Scene, Vector3, WebXRDefaultExperience } from "@babylonjs/core";
+import { GUIInterface } from "./interfaces/gui";
+import { AppState, changeState } from "./gameStates";
+
+const gui = {} as GUIInterface;
+
+export function createGUI() {
+  gui.guiPlane = MeshBuilder.CreatePlane("plane", {}) as AbstractMesh;
+  configGuiPlane();
+  gui.advancedTexture = AdvancedDynamicTexture.CreateForMesh(gui.guiPlane) as AdvancedDynamicTexture;
+  gui.panel = new StackPanel();
+  gui.advancedTexture.addControl(gui.panel);
+  gui.header = new TextBlock();
+  gui.deskButton = Button.CreateSimpleButton("onoff", "Wählen sie einen Tisch");
+  gui.puzzleButton = Button.CreateSimpleButton("onoff", "Starten Sie das Puzzle");
+  configGUIHeader(gui.header);
+  configGUIButton(gui.deskButton, "Wählen sie einen Tisch");
+  configGUIButton(gui.puzzleButton, "Starten Sie das Puzzle");
+
+  gui.deskButton.onPointerClickObservable.add(() => {
+    changeState(AppState.DESK_SELECT);
+    gui.deskButton.textBlock.text = "Ausgewählt";
+  });
+
+  gui.puzzleButton.onPointerClickObservable.add(() => {
+    changeState(AppState.GAME);
+  });
+
+  gui.panel.addControl(gui.header);
+  gui.panel.addControl(gui.deskButton);
+  gui.panel.addControl(gui.puzzleButton);
+}
+
+export function configGuiPlane() {
+  gui.guiPlane.position = new Vector3(0.4, 1.4, 0.4);
+}
 
 export function configGUIHeader(header: TextBlock) {
   header.text = "Puzzle Game";
