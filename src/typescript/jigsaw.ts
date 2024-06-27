@@ -28,7 +28,7 @@ export function getJigsawPieceOnController() {
 
 function createJigsawMesh(name: string, position: Vector3): JigsawPiece {
   const jigsawMesh = MeshBuilder.CreateBox(name, { height: 0.15, width: 0.25, depth: 0.1 }) as AbstractMesh;
-  var materialBox = new StandardMaterial("texture1");
+  const materialBox = new StandardMaterial("texture1");
   materialBox.diffuseColor = new Color3(0, 1, 0); // Green
   jigsawMesh.material = materialBox;
   jigsawMesh.position = position; // Set initial position (will be randomized later)
@@ -48,18 +48,18 @@ export function getJigsawPiecesArray(): Array<JigsawPiece> {
 
 export const getJigsawPiecesArrayLength = () => getJigsawPiecesArray().length;
 
-export function loadJigsawGameUI(scene: any, xrHelper: WebXRDefaultExperience) {
-  var manager = new BABYLON.GUI.GUI3DManager(scene);
+export function loadJigsawGameUI(scene: Scene, xrHelper: WebXRDefaultExperience) {
+  const manager = new BABYLON.GUI.GUI3DManager(scene);
 
   // Create a horizontal stack panel
-  var panel = new BABYLON.GUI.StackPanel3D();
+  const panel = new BABYLON.GUI.StackPanel3D();
   panel.isVertical = false;
   panel.margin = 1.2;
 
   manager.addControl(panel);
 
-  let currentIndex = 0;
-  let amountOfPartsToShowInUi = 1;
+  const currentIndex = 0;
+  const amountOfPartsToShowInUi = 1;
 
   const partsToShowInUi = getVisibleParts(getJigsawPiecesArray(), currentIndex, amountOfPartsToShowInUi);
 
@@ -115,10 +115,10 @@ export function getVisibleParts(jigsawParts: JigsawPiece[], currentIndex: number
 
 export function transformJigsawPieceToMeshButton3D(scene: Scene, xrHelper: WebXRDefaultExperience, part: JigsawPiece) {
   const imageUrl = `../assets/${part.name}.jpg`;
-  let plane = CreatePlane(`plane_${part.name}`, { width: 1.0, height: 1.0 }, scene);
+  const plane = CreatePlane(`plane_${part.name}`, { width: 1.0, height: 1.0 }, scene);
 
   // Create a material and assign the texture to it
-  let material = new StandardMaterial(`material_${part.name}`, scene);
+  const material = new StandardMaterial(`material_${part.name}`, scene);
   material.diffuseTexture = new Texture(imageUrl, scene);
   // Apply the material to the plane
   plane.material = material;
@@ -127,7 +127,7 @@ export function transformJigsawPieceToMeshButton3D(scene: Scene, xrHelper: WebXR
   const button = new BABYLON.GUI.MeshButton3D(plane, `button_${part.name}`);
   button.pointerDownAnimation = () => {
     // Clone the plane mesh
-    let clonedPlane = plane.clone(`clone_${part.name}`);
+    const clonedPlane = plane.clone(`clone_${part.name}`);
     stickJigsawPieceToController(xrHelper.input.controllers[0], clonedPlane);
   };
 

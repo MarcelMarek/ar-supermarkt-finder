@@ -53,7 +53,7 @@ function createGrid(xrHelper: WebXRDefaultExperience, scene: Scene, plane: Mesh,
 
       cellPlane.actionManager = new ActionManager(scene);
       cellPlane.actionManager.registerAction(
-        new ExecuteCodeAction(ActionManager.OnPickTrigger, function (evt) {
+        new ExecuteCodeAction(ActionManager.OnPickTrigger, function () {
           if (AppState.GAME) {
             const jigsawPieceOnController = getJigsawPieceOnController();
             cellPlane.material = jigsawPieceOnController.material;

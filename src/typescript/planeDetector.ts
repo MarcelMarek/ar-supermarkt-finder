@@ -34,13 +34,13 @@ export function addXrPlanesObserver(xrHelper: WebXRDefaultExperience, scene: Sce
 
 export function addPolygonForPlaneDetection(xrHelper: WebXRDefaultExperience, scene: Scene, planes: Mesh[], plane: IWebXRPlane) {
   plane.polygonDefinition.push(plane.polygonDefinition[0]); // Die ersten und letzten Punkte sollten gleich sein, um die Form zu schließen
-  var polygon_triangulation = new PolygonMeshBuilder(
+  const polygon_triangulation = new PolygonMeshBuilder(
     "name",
     plane.polygonDefinition.map((p) => new Vector2(p.x, p.z)), // Ein Format, das für den Mesh Builder geeignet ist
     scene
   );
 
-  var polygon = polygon_triangulation.build(false, 0.01); // True: Nur Position; False: Position und Indizies; 0.01: Präzision der Messung (intern)
+  const polygon = polygon_triangulation.build(false, 0.01); // True: Nur Position; False: Position und Indizies; 0.01: Präzision der Messung (intern)
   plane.mesh = polygon;
   planes[plane.id] = plane.mesh;
   const mat = new StandardMaterial("mat", scene);
@@ -55,8 +55,8 @@ export function addPolygonForPlaneDetection(xrHelper: WebXRDefaultExperience, sc
 
   //Trigger pressed on Plane
   plane.mesh.actionManager.registerAction(
-    new ExecuteCodeAction(ActionManager.OnPickTrigger, function (ev) {
-      let currentState: AppState = getCurrentGameState();
+    new ExecuteCodeAction(ActionManager.OnPickTrigger, function () {
+      const currentState: AppState = getCurrentGameState();
       if (currentState === AppState.DESK_SELECT) {
         planes.forEach((_plane) => {
           if (_plane !== plane.mesh) {
@@ -82,12 +82,12 @@ export function updatePolygonForPlaneDetection(scene: Scene, planes: Mesh[], pla
     return;
   }
   plane.polygonDefinition.push(plane.polygonDefinition[0]);
-  var polygon_triangulation = new PolygonMeshBuilder(
+  const polygon_triangulation = new PolygonMeshBuilder(
     "plane",
     plane.polygonDefinition.map((p) => new Vector2(p.x, p.z)),
     scene
   );
-  var polygon = polygon_triangulation.build(false, 0.01);
+  const polygon = polygon_triangulation.build(false, 0.01);
   polygon.createNormals(true);
   plane.mesh = polygon;
   planes[plane.id] = plane.mesh;

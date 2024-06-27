@@ -15,7 +15,7 @@ export function onMotionControllerInitObservable(
   motionController: WebXRAbstractMotionController
 ) {
   const xr_ids = motionController.getComponentIds();
-  let triggerComponent = motionController.getComponent(xr_ids[0]); // xr-standard-trigger
+  const triggerComponent = motionController.getComponent(xr_ids[0]); // xr-standard-trigger
 
   triggerComponent.onButtonStateChangedObservable.add(() => {
     if (triggerComponent.changes.pressed) {

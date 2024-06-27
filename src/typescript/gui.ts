@@ -29,7 +29,7 @@ export function getPrevNextButton(
   amountOfPartsToShowInUi: number
 ) {
   const button = new BABYLON.GUI.Button3D(buttonText);
-  var text1 = new BABYLON.GUI.TextBlock();
+  const text1 = new BABYLON.GUI.TextBlock();
   text1.text = buttonText;
   text1.color = "white";
   text1.fontSize = 48;

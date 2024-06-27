@@ -8,17 +8,17 @@ import { AppState, changeState } from "./gameStates";
 import { loadJigsawGameUI as loadJigsawGameHUD } from "./jigsaw";
 import { WebXRDefaultExperience } from "@babylonjs/core";
 
-export var createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
-  var scene = new Scene(engine);
+export const createScene = async function (engine: Engine, canvas: HTMLCanvasElement) {
+  const scene = new Scene(engine);
 
-  var camera = new FreeCamera("camera1", new Vector3(0, 1, -5), scene); // creates and positions a free camera (non-mesh)
+  const camera = new FreeCamera("camera1", new Vector3(0, 1, -5), scene); // creates and positions a free camera (non-mesh)
   camera.setTarget(Vector3.Zero()); // targets the camera to scene origin
   camera.attachControl(canvas, true); // attaches the camera to the canvas
 
   addDirectionalLight(scene);
   addHemisphericLight(scene);
 
-  var xrHelper = (await scene.createDefaultXRExperienceAsync({
+  const xrHelper = (await scene.createDefaultXRExperienceAsync({
     uiOptions: {
       sessionMode: "immersive-ar",
       requiredFeatures: ["plane-detection"],
@@ -38,20 +38,19 @@ export var createScene = async function (engine: Engine, canvas: HTMLCanvasEleme
 
   xrHelper.baseExperience.sessionManager.onXRSessionInit.add(() => {
     planes.forEach((plane) => plane.dispose());
-    while (planes.pop()) {}
   });
 
   // Controller
   xrHelper.input.onControllerAddedObservable.add((controller) => {
-    controller.onMotionControllerInitObservable.add((motionController) => {
+    controller.onMotionControllerInitObservable.add(() => {
       onMotionControllerInitObservable(scene, xrHelper, controller, controller.motionController);
     });
   });
 
   // GUI
-  var guiPlane = MeshBuilder.CreatePlane("plane", {}) as AbstractMesh;
+  const guiPlane = MeshBuilder.CreatePlane("plane", {}) as AbstractMesh;
   guiPlane.position = new Vector3(0.4, 1.4, 0.4);
-  var advancedTexture = AdvancedDynamicTexture.CreateForMesh(guiPlane) as AdvancedDynamicTexture;
+  const advancedTexture = AdvancedDynamicTexture.CreateForMesh(guiPlane) as AdvancedDynamicTexture;
   const panel = new StackPanel();
   advancedTexture.addControl(panel);
   const header = new TextBlock();
