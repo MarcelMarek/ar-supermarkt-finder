@@ -17,7 +17,7 @@ import { shuffleArray } from "./helper";
 
 let jigsawPieceOnController = null as Mesh;
 
-function setJigsawPieceOnController(jigsawPiece: Mesh) {
+function attachJigsawPieceToController(jigsawPiece: Mesh) {
   jigsawPieceOnController = jigsawPiece;
 }
 
@@ -25,22 +25,18 @@ export function getJigsawPieceOnController() {
   return jigsawPieceOnController;
 }
 
-function createJigsawMesh(name: string, position: Vector3): JigsawPieceInterface {
+function createJigsawMesh(name: string, position: number): JigsawPieceInterface {
   const jigsawMesh = MeshBuilder.CreateBox(name, { height: 0.15, width: 0.25, depth: 0.1 }) as AbstractMesh;
   const materialBox = new StandardMaterial("texture1");
   materialBox.diffuseColor = new Color3(0, 1, 0); // Green
   jigsawMesh.material = materialBox;
-  jigsawMesh.position = position; // Set initial position (will be randomized later)
   return { name: name, mesh: jigsawMesh, correctPosition: position };
 }
 
 export function getJigsawPiecesArray(): Array<JigsawPieceInterface> {
   const jigsawArray: JigsawPieceInterface[] = [];
-  const gridSize = Math.sqrt(10); // For example, for 10 parts
   for (let i = 0; i < 3; i++) {
-    // Calculate grid position based on index
-    const position = new Vector3((i % gridSize) * 0.3, 0, Math.floor(i / gridSize) * 0.3);
-    jigsawArray.push(createJigsawMesh(`image_${i + 1}`, position));
+    jigsawArray.push(createJigsawMesh(`image_${i + 1}`, i + 1));
   }
   return shuffleArray(jigsawArray); // Randomize the array
 }
@@ -54,6 +50,7 @@ export function addControlsToPanel(
 ) {
   oldJigsawPartsInUi.forEach((part) => {
     if (panel.containsControl(part)) {
+      part.dispose();
       panel.removeControl(part);
     }
   });
@@ -104,9 +101,9 @@ function stickJigsawPieceToController(controller: WebXRInputSource, jigsawPiece:
   jigsawPiece.rotationQuaternion = Quaternion.Identity();
   if (controller.inputSource.handedness[0] === "l") {
     jigsawPiece.locallyTranslate(new Vector3(-0.6, 0, 0));
-    setJigsawPieceOnController(jigsawPiece);
+    attachJigsawPieceToController(jigsawPiece);
   } else {
     jigsawPiece.locallyTranslate(new Vector3(0.6, 0, 0));
-    setJigsawPieceOnController(jigsawPiece);
+    attachJigsawPieceToController(jigsawPiece);
   }
 }

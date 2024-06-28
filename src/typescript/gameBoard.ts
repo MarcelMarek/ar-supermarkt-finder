@@ -1,7 +1,7 @@
-import { ActionManager, Color3, ExecuteCodeAction, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
-import { getJigsawPieceOnController, getJigsawPiecesArrayLength } from "./jigsaw";
-import { AppState } from "./gameStates";
+import { Color3, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3 } from "@babylonjs/core";
+import { getJigsawPiecesArrayLength } from "./jigsaw";
 import { GridInterface } from "./interfaces/grid";
+import { placeJigsawPiecesOnPlanes } from "./actionManager";
 
 function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
   const gridObjet = {} as GridInterface;
@@ -53,15 +53,7 @@ function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
 
       cellPlane.isPickable = true;
 
-      cellPlane.actionManager = new ActionManager(scene);
-      cellPlane.actionManager.registerAction(
-        new ExecuteCodeAction(ActionManager.OnPickTrigger, function () {
-          if (AppState.GAME) {
-            const jigsawPieceOnController = getJigsawPieceOnController();
-            cellPlane.material = jigsawPieceOnController.material;
-          }
-        })
-      );
+      placeJigsawPiecesOnPlanes(scene, cellPlane); // @ActionManager
     }
   }
 

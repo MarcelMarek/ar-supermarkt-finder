@@ -1,7 +1,6 @@
 import {
   ActionManager,
   Color3,
-  ExecuteCodeAction,
   IWebXRPlane,
   Material,
   Mesh,
@@ -12,8 +11,7 @@ import {
   Vector2,
   WebXRPlaneDetector,
 } from "@babylonjs/core";
-import { AppState, getCurrentGameState } from "./gameStates";
-import { placeGameBoard } from "./gameBoard";
+import { selectPlaneAsGameboard } from "./actionManager";
 
 const planes: Mesh[] = [];
 
@@ -50,23 +48,7 @@ export function addPolygonForPlaneDetection(scene: Scene, planes: Mesh[], plane:
   plane.mesh.rotationQuaternion = new Quaternion(); // Rotation des Plane.Mesh
   plane.transformationMatrix.decompose(plane.mesh.scaling, plane.mesh.rotationQuaternion, plane.mesh.position); // Setzt Transformationen von Plane zu Mesh
 
-  plane.mesh.actionManager = new ActionManager(scene);
-
-  //Trigger pressed on Plane
-  plane.mesh.actionManager.registerAction(
-    new ExecuteCodeAction(ActionManager.OnPickTrigger, function () {
-      const currentState: AppState = getCurrentGameState();
-      if (currentState === AppState.DESK_SELECT) {
-        planes.forEach((_plane) => {
-          if (_plane !== plane.mesh) {
-            _plane.dispose();
-          } else {
-            placeGameBoard(scene, plane.mesh);
-          }
-        });
-      }
-    })
-  );
+  selectPlaneAsGameboard(scene, planes, plane); // @ActionManager
 }
 
 export function updatePolygonForPlaneDetection(scene: Scene, planes: Mesh[], plane: IWebXRPlane) {
