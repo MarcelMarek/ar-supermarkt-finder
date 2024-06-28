@@ -64,6 +64,5 @@ function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
 
 export function placeGameBoard(scene: Scene, plane: Mesh) {
   const size = getJigsawPiecesArrayLength();
-
   createGrid(scene, plane, size / 2, size / 2); // Create a 10x10 grid
 }

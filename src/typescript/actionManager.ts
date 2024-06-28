@@ -1,8 +1,7 @@
 import { ActionManager, ExecuteCodeAction, IWebXRPlane, Mesh, Scene } from "@babylonjs/core";
 import { AppState, getCurrentGameState } from "./gameStates";
 import { getJigsawPieceOnController } from "./jigsaw";
-import { getGameBoardCellIndex, placeGameBoard } from "./gameBoard";
-import { getPlaneOnControllerIndex } from "./controller";
+import { placeGameBoard } from "./gameBoard";
 
 export function selectPlaneAsGameboard(scene: Scene, planes: Mesh[], plane: IWebXRPlane) {
   plane.mesh.actionManager = new ActionManager(scene);
@@ -27,12 +26,8 @@ export function placeJigsawPiecesOnPlanes(scene: Scene, cellPlane: Mesh) {
   cellPlane.actionManager.registerAction(
     new ExecuteCodeAction(ActionManager.OnPickTrigger, function () {
       if (AppState.GAME) {
-        const gameBoardCellPointedAtId = getGameBoardCellIndex(cellPlane.name);
         const jigsawPieceOnController = getJigsawPieceOnController();
-        const jigsawPieceOnControllerId = getPlaneOnControllerIndex(jigsawPieceOnController.name);
-        if (jigsawPieceOnControllerId === gameBoardCellPointedAtId) {
-          cellPlane.material = jigsawPieceOnController.material;
-        }
+        cellPlane.material = jigsawPieceOnController.material;
       }
     })
   );
