@@ -5,3 +5,7 @@ export function shuffleArray<T>(array: T[]): T[] {
   }
   return array;
 }
+
+export function getGridIndex(x: number, y: number, width: number): number {
+  return y * width + x + 1;
+}

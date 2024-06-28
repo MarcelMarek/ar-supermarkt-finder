@@ -3,6 +3,7 @@ import { getJigsawPiecesArrayLength } from "./jigsaw";
 import { GridInterface } from "./interfaces/grid";
 import { placeJigsawPiecesOnPlanes } from "./actionManager";
 import { JigsawPieceInterface } from "./interfaces/jigsaw";
+import { getGridIndex } from "./helper";
 
 function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
   const gridObjet = {} as GridInterface;
@@ -54,7 +55,7 @@ function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
       cellMaterial.diffuseColor = new Color3(1, 1, 1);
       cellPlane.mesh.material = cellMaterial;
 
-      cellPlane.positionInArray = i * cols + j;
+      cellPlane.positionInArray = getGridIndex(j, i, cols);
 
       cellPlane.mesh.isPickable = true;
 
