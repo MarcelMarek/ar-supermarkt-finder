@@ -2,7 +2,6 @@ import {
   AbstractMesh,
   Color3,
   CreatePlane,
-  Mesh,
   MeshBuilder,
   Quaternion,
   Scene,
@@ -15,9 +14,9 @@ import {
 import { JigsawPieceInterface } from "./interfaces/jigsaw";
 import { shuffleArray } from "./helper";
 
-let jigsawPieceOnController = null as Mesh;
+let jigsawPieceOnController = {} as JigsawPieceInterface;
 
-function attachJigsawPieceToController(jigsawPiece: Mesh) {
+function attachJigsawPieceToController(jigsawPiece: JigsawPieceInterface) {
   jigsawPieceOnController = jigsawPiece;
 }
 
@@ -26,11 +25,11 @@ export function getJigsawPieceOnController() {
 }
 
 function createJigsawMesh(name: string, position: number): JigsawPieceInterface {
-  const jigsawMesh = MeshBuilder.CreateBox(name, { height: 0.15, width: 0.25, depth: 0.1 }) as AbstractMesh;
+  const jigsawPiece = MeshBuilder.CreateBox(name, { height: 0.15, width: 0.25, depth: 0.1 }) as AbstractMesh;
   const materialBox = new StandardMaterial("texture1");
   materialBox.diffuseColor = new Color3(0, 1, 0); // Green
-  jigsawMesh.material = materialBox;
-  return { name: name, mesh: jigsawMesh, correctPosition: position };
+  jigsawPiece.material = materialBox;
+  return { name: name, mesh: jigsawPiece, positionInArray: position };
 }
 
 export function getJigsawPiecesArray(): Array<JigsawPieceInterface> {
@@ -87,23 +86,26 @@ export function transformJigsawPieceToMeshButton3D(scene: Scene, xrHelper: WebXR
   const button = new BABYLON.GUI.MeshButton3D(plane, `button_${part.name}`);
   button.pointerDownAnimation = () => {
     // Clone the plane mesh
-    const clonedPlane = plane.clone(`clone_${part.name}`);
+    const clonedPlane = {} as JigsawPieceInterface;
+    clonedPlane.name = `clone_${part.name}`;
+    clonedPlane.mesh = plane.clone(`clone_${part.name}`);
+    clonedPlane.positionInArray = part.positionInArray;
     stickJigsawPieceToController(xrHelper.input.controllers[0], clonedPlane);
   };
 
   return button;
 }
 
-function stickJigsawPieceToController(controller: WebXRInputSource, jigsawPiece: Mesh) {
-  jigsawPiece.showBoundingBox = true;
-  jigsawPiece.setParent(controller.motionController.rootMesh);
-  jigsawPiece.position = Vector3.ZeroReadOnly;
-  jigsawPiece.rotationQuaternion = Quaternion.Identity();
+function stickJigsawPieceToController(controller: WebXRInputSource, jigsawPiece: JigsawPieceInterface) {
+  jigsawPiece.mesh.showBoundingBox = true;
+  jigsawPiece.mesh.setParent(controller.motionController.rootMesh);
+  jigsawPiece.mesh.position = Vector3.ZeroReadOnly;
+  jigsawPiece.mesh.rotationQuaternion = Quaternion.Identity();
   if (controller.inputSource.handedness[0] === "l") {
-    jigsawPiece.locallyTranslate(new Vector3(-0.6, 0, 0));
+    jigsawPiece.mesh.locallyTranslate(new Vector3(-0.6, 0, 0));
     attachJigsawPieceToController(jigsawPiece);
   } else {
-    jigsawPiece.locallyTranslate(new Vector3(0.6, 0, 0));
+    jigsawPiece.mesh.locallyTranslate(new Vector3(0.6, 0, 0));
     attachJigsawPieceToController(jigsawPiece);
   }
 }

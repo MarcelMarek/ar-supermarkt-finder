@@ -2,6 +2,7 @@ import { ActionManager, ExecuteCodeAction, IWebXRPlane, Mesh, Scene } from "@bab
 import { AppState, getCurrentGameState } from "./gameStates";
 import { getJigsawPieceOnController } from "./jigsaw";
 import { placeGameBoard } from "./gameBoard";
+import { JigsawPieceInterface } from "./interfaces/jigsaw";
 
 export function selectPlaneAsGameboard(scene: Scene, planes: Mesh[], plane: IWebXRPlane) {
   plane.mesh.actionManager = new ActionManager(scene);
@@ -21,13 +22,13 @@ export function selectPlaneAsGameboard(scene: Scene, planes: Mesh[], plane: IWeb
   );
 }
 
-export function placeJigsawPiecesOnPlanes(scene: Scene, cellPlane: Mesh) {
-  cellPlane.actionManager = new ActionManager(scene);
-  cellPlane.actionManager.registerAction(
+export function placeJigsawPiecesOnPlanes(scene: Scene, cell: JigsawPieceInterface) {
+  cell.mesh.actionManager = new ActionManager(scene);
+  cell.mesh.actionManager.registerAction(
     new ExecuteCodeAction(ActionManager.OnPickTrigger, function () {
       if (AppState.GAME) {
         const jigsawPieceOnController = getJigsawPieceOnController();
-        cellPlane.material = jigsawPieceOnController.material;
+        if (jigsawPieceOnController.positionInArray === cell.positionInArray) cell.mesh.material = jigsawPieceOnController.mesh.material;
       }
     })
   );

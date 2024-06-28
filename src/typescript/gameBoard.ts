@@ -2,6 +2,7 @@ import { Color3, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3 } from "@ba
 import { getJigsawPiecesArrayLength } from "./jigsaw";
 import { GridInterface } from "./interfaces/grid";
 import { placeJigsawPiecesOnPlanes } from "./actionManager";
+import { JigsawPieceInterface } from "./interfaces/jigsaw";
 
 function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
   const gridObjet = {} as GridInterface;
@@ -38,20 +39,24 @@ function createGrid(scene: Scene, plane: Mesh, rows: number, cols: number) {
         gridObjet.planeCenter.z - gridObjet.planeSize.z / 2 + gridObjet.cellHeight / 2 + i * gridObjet.cellHeight
       );
 
-      const cellPlane = MeshBuilder.CreatePlane(`cellPlane_${i}_${j}`, { width: gridObjet.cellWidth * 0.99, height: gridObjet.cellHeight * 0.99 }, scene);
-      cellPlane.position = cellCenter;
-      cellPlane.position.y += 0.05; // Slightly above the base plane
+      const cellPlane = {} as JigsawPieceInterface;
+      cellPlane.name = `cellPlane_${i}_${j}`;
+      cellPlane.mesh = MeshBuilder.CreatePlane(`cellPlane_${i}_${j}`, { width: gridObjet.cellWidth * 0.99, height: gridObjet.cellHeight * 0.99 }, scene);
+      cellPlane.mesh.position = cellCenter;
+      cellPlane.mesh.position.y += 0.05; // Slightly above the base plane
 
       // Apply the same rotation as the base plane to each cell plane
-      cellPlane.rotation = basePlaneRotation.clone();
-      cellPlane.rotation.x += Math.PI / 2; // 90 degrees in radians
+      cellPlane.mesh.rotation = basePlaneRotation.clone();
+      cellPlane.mesh.rotation.x += Math.PI / 2; // 90 degrees in radians
 
       // Optional: Set a material to the cell plane for visual distinction
       const cellMaterial = new StandardMaterial(`cellMaterial_${i}_${j}`, scene);
-      cellMaterial.diffuseColor = new Color3(1, 1, 1); // Random color for each cell
-      cellPlane.material = cellMaterial;
+      cellMaterial.diffuseColor = new Color3(1, 1, 1);
+      cellPlane.mesh.material = cellMaterial;
 
-      cellPlane.isPickable = true;
+      cellPlane.positionInArray = i * cols + j;
+
+      cellPlane.mesh.isPickable = true;
 
       placeJigsawPiecesOnPlanes(scene, cellPlane); // @ActionManager
     }
